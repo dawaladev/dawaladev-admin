@@ -16,9 +16,9 @@ interface Admin {
 }
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditAdminPage({ params }: PageProps) {
