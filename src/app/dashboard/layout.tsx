@@ -33,9 +33,10 @@ export default async function DashboardLayout({
     if (dbUser && dbUser.id !== user.id) {
       console.log('User found by email, but ID mismatch. Supabase ID:', user.id, 'Database ID:', dbUser.id)
       try {
+        const currentDbUser = dbUser // Store reference before reassignment
         dbUser = await withPrisma(async (client) => {
           return await client.user.update({
-            where: { id: dbUser.id },
+            where: { id: currentDbUser.id },
             data: { id: user.id },
           })
         })
