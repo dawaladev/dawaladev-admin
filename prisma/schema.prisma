@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      UserRole @default(ADMIN)
+  isApproved Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model PendingUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  authProvider String @default("email") // "email" or "google"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("pending_users")
+}
+
+model JenisPaket {
+  id         Int       @id @default(autoincrement())
+  namaPaket  String    @map("nama_paket")
+  namaPaketEn String?  @map("nama_paket_en")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  // Relation to Makanan
+  makanan    Makanan[]
+
+  @@map("jenis_paket")
+}
+
+model Makanan {
+  id          Int        @id @default(autoincrement())
+  namaMakanan String     @map("nama_makanan")
+  deskripsi   String
+  deskripsiEn String?    @map("deskripsi_en")
+  foto        String     // Keep for backward compatibility, will be JSON array
+  harga       Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  // Foreign key to JenisPaket
+  jenisPaketId Int       @map("jenis_paket_id")
+  jenisPaket   JenisPaket @relation(fields: [jenisPaketId], references: [id], onDelete: Cascade)
+
+  @@map("makanan")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+}
