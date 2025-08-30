@@ -53,10 +53,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         console.log('Auth state change:', event, session?.user?.email)
         
-        if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
-          setSession(session)
-          setUser(session?.user ?? null)
-        } else if (event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setSession(session)
           setUser(session?.user ?? null)
         } else if (event === 'SIGNED_OUT') {
