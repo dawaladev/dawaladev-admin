@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Modal from '@/components/ui/modal'
-import { Clock, UserCheck, Trash2, AlertTriangle, Search } from 'lucide-react'
+import { Clock, UserCheck, Trash2, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 interface PendingUser {

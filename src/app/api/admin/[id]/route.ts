@@ -5,7 +5,7 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServerSupabaseClient()
@@ -24,8 +24,9 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden: Only super admin can access admin data' }, { status: 403 })
     }
 
+    const { id } = await params
     const admin = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!admin) {
@@ -43,7 +44,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServerSupabaseClient()
@@ -78,9 +79,10 @@ export async function PUT(
       )
     }
 
+    const { id } = await params
     // Check if admin exists
     const admin = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!admin) {
@@ -89,7 +91,7 @@ export async function PUT(
 
     // Update user in database
     const updatedAdmin = await prisma.user.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         email,
         role,
@@ -110,7 +112,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServerSupabaseClient()
@@ -129,9 +131,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Forbidden: Only super admin can delete admin users' }, { status: 403 })
     }
 
+    const { id } = await params
     // Check if admin exists
     const admin = await prisma.user.findUnique({
-      where: { id: params.id },
+      where: { id },
     })
 
     if (!admin) {
@@ -139,7 +142,7 @@ export async function DELETE(
     }
 
     // Prevent super admin from deleting themselves
-    if (params.id === user.id) {
+    if (id === user.id) {
       return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
     }
 
@@ -150,7 +153,7 @@ export async function DELETE(
     )
 
     // Delete user from Supabase Auth
-    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(params.id)
+    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(id)
 
     if (authError) {
       return NextResponse.json(
@@ -161,7 +164,7 @@ export async function DELETE(
 
     // Delete user from database
     await prisma.user.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Admin deleted successfully' })
