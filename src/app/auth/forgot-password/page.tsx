@@ -51,7 +51,6 @@ export default function ForgotPasswordPage() {
   return (
     <AuthLayout 
       title="Lupa Password"
-      subtitle="Masukkan email Anda untuk reset password"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
