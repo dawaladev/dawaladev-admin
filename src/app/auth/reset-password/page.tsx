@@ -72,7 +72,6 @@ export default function ResetPasswordPage() {
     return (
       <AuthLayout 
         title="Password Berhasil Diubah"
-        subtitle="Password Anda telah berhasil diubah. Anda akan dialihkan ke halaman login dalam beberapa detik."
       >
         <div className="text-center space-y-6">
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
@@ -92,7 +91,6 @@ export default function ResetPasswordPage() {
   return (
     <AuthLayout 
       title="Reset Password"
-      subtitle="Masukkan password baru Anda"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
