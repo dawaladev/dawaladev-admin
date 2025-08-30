@@ -78,7 +78,7 @@ export default async function MakananDetailPage({
           <div>
             <h2 className="text-2xl font-bold text-gray-900">{makanan.namaMakanan}</h2>
             <MultiLangText
-              textEn={makanan.jenisPaket.namaPaketEn}
+              textEn={makanan.jenisPaket.namaPaketEn || undefined}
               defaultText={makanan.jenisPaket.namaPaket}
               className="text-lg text-gray-600"
               showLanguageToggle={true}
@@ -88,7 +88,7 @@ export default async function MakananDetailPage({
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Deskripsi</h3>
             <MultiLangDescription
-              textEn={makanan.deskripsiEn}
+              textEn={makanan.deskripsiEn || undefined}
               defaultText={makanan.deskripsi}
               className="text-gray-600"
               showLanguageToggle={true}

@@ -486,7 +486,7 @@ export default function MakananPage() {
                         </td>
                         <td className="px-4 py-3">
                           <MultiLangText
-                            textEn={item.jenisPaket.namaPaketEn}
+                            textEn={item.jenisPaket.namaPaketEn || undefined}
                             defaultText={item.jenisPaket.namaPaket}
                             className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
                             showLanguageToggle={false}
