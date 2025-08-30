@@ -9,43 +9,48 @@ export interface AuthError {
 export async function handleAuthError(error: unknown): Promise<AuthError> {
   console.error('Auth error:', error)
   
+  // Type guard to check if error has message property
+  const errorMessage = error && typeof error === 'object' && 'message' in error 
+    ? (error as { message: string }).message 
+    : ''
+  
   // Handle specific Supabase auth errors
-  if (error?.message?.includes('Invalid Refresh Token')) {
+  if (errorMessage.includes('Invalid Refresh Token')) {
     return {
       message: 'Session expired. Please login again.',
       code: 'INVALID_REFRESH_TOKEN'
     }
   }
   
-  if (error?.message?.includes('Refresh Token Not Found')) {
+  if (errorMessage.includes('Refresh Token Not Found')) {
     return {
       message: 'Session expired. Please login again.',
       code: 'REFRESH_TOKEN_NOT_FOUND'
     }
   }
   
-  if (error?.message?.includes('Invalid login credentials')) {
+  if (errorMessage.includes('Invalid login credentials')) {
     return {
       message: 'Email atau password salah. Silakan periksa kembali email dan password Anda.',
       code: 'INVALID_CREDENTIALS'
     }
   }
   
-  if (error?.message?.includes('Email not confirmed')) {
+  if (errorMessage.includes('Email not confirmed')) {
     return {
       message: 'Email belum dikonfirmasi. Silakan cek email Anda dan klik link konfirmasi.',
       code: 'EMAIL_NOT_CONFIRMED'
     }
   }
   
-  if (error?.message?.includes('User not found')) {
+  if (errorMessage.includes('User not found')) {
     return {
       message: 'Akun tidak ditemukan. Silakan daftar terlebih dahulu.',
       code: 'USER_NOT_FOUND'
     }
   }
   
-  if (error?.message?.includes('Too many requests')) {
+  if (errorMessage.includes('Too many requests')) {
     return {
       message: 'Terlalu banyak percobaan login. Silakan coba lagi dalam beberapa menit.',
       code: 'TOO_MANY_REQUESTS'
@@ -53,7 +58,7 @@ export async function handleAuthError(error: unknown): Promise<AuthError> {
   }
   
   // Handle network errors
-  if (error?.message?.includes('Failed to fetch') || error?.message?.includes('NetworkError')) {
+  if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError')) {
     return {
       message: 'Koneksi internet bermasalah. Silakan periksa koneksi Anda dan coba lagi.',
       code: 'NETWORK_ERROR'
@@ -61,7 +66,7 @@ export async function handleAuthError(error: unknown): Promise<AuthError> {
   }
 
   // Handle timeout errors
-  if (error?.message?.includes('timeout')) {
+  if (errorMessage.includes('timeout')) {
     return {
       message: 'Waktu tunggu habis. Silakan coba lagi.',
       code: 'TIMEOUT_ERROR'
@@ -70,7 +75,7 @@ export async function handleAuthError(error: unknown): Promise<AuthError> {
 
   // Default error message
   return {
-    message: error?.message || 'Terjadi kesalahan saat autentikasi. Silakan coba lagi.',
+    message: errorMessage || 'Terjadi kesalahan saat autentikasi. Silakan coba lagi.',
     code: 'UNKNOWN_ERROR'
   }
 }
@@ -108,10 +113,14 @@ export async function refreshAuthSession(): Promise<boolean> {
 }
 
 export function isAuthError(error: unknown): boolean {
-  return error?.message?.includes('Invalid Refresh Token') ||
-         error?.message?.includes('Refresh Token Not Found') ||
-         error?.message?.includes('Invalid login credentials') ||
-         error?.message?.includes('Email not confirmed') ||
-         error?.message?.includes('User not found') ||
-         error?.message?.includes('Too many requests')
+  const errorMessage = error && typeof error === 'object' && 'message' in error 
+    ? (error as { message: string }).message 
+    : ''
+    
+  return errorMessage.includes('Invalid Refresh Token') ||
+         errorMessage.includes('Refresh Token Not Found') ||
+         errorMessage.includes('Invalid login credentials') ||
+         errorMessage.includes('Email not confirmed') ||
+         errorMessage.includes('User not found') ||
+         errorMessage.includes('Too many requests')
 }
