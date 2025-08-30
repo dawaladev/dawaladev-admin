@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { withPrisma } from '@/lib/prisma'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { createClient } from '@supabase/supabase-js'
 
@@ -16,8 +16,10 @@ export async function GET(
     }
 
     // Check if user is super admin
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
+    const dbUser = await withPrisma(async (client) => {
+      return await client.user.findUnique({
+        where: { id: user.id },
+      })
     })
 
     if (dbUser?.role !== 'SUPER_ADMIN') {
@@ -25,8 +27,10 @@ export async function GET(
     }
 
     const { id } = await params
-    const admin = await prisma.user.findUnique({
-      where: { id },
+    const admin = await withPrisma(async (client) => {
+      return await client.user.findUnique({
+        where: { id },
+      })
     })
 
     if (!admin) {
@@ -55,8 +59,10 @@ export async function PUT(
     }
 
     // Check if user is super admin
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
+    const dbUser = await withPrisma(async (client) => {
+      return await client.user.findUnique({
+        where: { id: user.id },
+      })
     })
 
     if (dbUser?.role !== 'SUPER_ADMIN') {
@@ -81,8 +87,10 @@ export async function PUT(
 
     const { id } = await params
     // Check if admin exists
-    const admin = await prisma.user.findUnique({
-      where: { id },
+    const admin = await withPrisma(async (client) => {
+      return await client.user.findUnique({
+        where: { id },
+      })
     })
 
     if (!admin) {
@@ -90,12 +98,14 @@ export async function PUT(
     }
 
     // Update user in database
-    const updatedAdmin = await prisma.user.update({
-      where: { id },
-      data: {
-        email,
-        role,
-      },
+    const updatedAdmin = await withPrisma(async (client) => {
+      return await client.user.update({
+        where: { id },
+        data: {
+          email,
+          role,
+        },
+      })
     })
 
     return NextResponse.json(updatedAdmin)
@@ -123,8 +133,10 @@ export async function DELETE(
     }
 
     // Check if user is super admin
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
+    const dbUser = await withPrisma(async (client) => {
+      return await client.user.findUnique({
+        where: { id: user.id },
+      })
     })
 
     if (dbUser?.role !== 'SUPER_ADMIN') {
@@ -133,8 +145,10 @@ export async function DELETE(
 
     const { id } = await params
     // Check if admin exists
-    const admin = await prisma.user.findUnique({
-      where: { id },
+    const admin = await withPrisma(async (client) => {
+      return await client.user.findUnique({
+        where: { id },
+      })
     })
 
     if (!admin) {
@@ -163,8 +177,10 @@ export async function DELETE(
     }
 
     // Delete user from database
-    await prisma.user.delete({
-      where: { id }
+    await withPrisma(async (client) => {
+      await client.user.delete({
+        where: { id }
+      })
     })
 
     return NextResponse.json({ message: 'Admin deleted successfully' })
