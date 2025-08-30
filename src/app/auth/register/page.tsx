@@ -81,7 +81,7 @@ export default function RegisterPage() {
           setShowEmailModal(true)
         }
       }
-    } catch (error) {
+    } catch {
       setError('Terjadi kesalahan saat mendaftar')
     } finally {
       setIsLoading(false)
@@ -219,7 +219,7 @@ export default function RegisterPage() {
           className="w-full h-10 border-gray-300 hover:bg-gray-50 rounded-lg bg-white/50 backdrop-blur-sm"
           onClick={async () => {
             try {
-              const { data, error } = await supabase.auth.signInWithOAuth({
+              const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
                   redirectTo: `${window.location.origin}/auth/callback`,

@@ -1,7 +1,8 @@
 import { createServerSupabaseClient } from './supabase-server'
 import { redirect } from 'next/navigation'
+import type { User } from '@supabase/supabase-js'
 
-export async function validateSession(): Promise<{ user: any; error: string | null }> {
+export async function validateSession(): Promise<{ user: User | null; error: string | null }> {
   try {
     const supabase = await createServerSupabaseClient()
     const { data: { user }, error } = await supabase.auth.getUser()
@@ -25,7 +26,7 @@ export async function validateSession(): Promise<{ user: any; error: string | nu
   }
 }
 
-export async function requireAuth(): Promise<any> {
+export async function requireAuth(): Promise<User> {
   const { user, error } = await validateSession()
   
   if (error || !user) {

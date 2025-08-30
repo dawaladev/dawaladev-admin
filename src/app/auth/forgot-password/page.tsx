@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Mail, ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react'
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '@/lib/validations'
 import AuthLayout from '@/components/auth-layout'
 
@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
       }
 
       setSuccess('Link reset password telah dikirim ke email Anda. Silakan cek inbox atau spam folder.')
-    } catch (error) {
+    } catch {
       setError('root', { message: 'Terjadi kesalahan saat mengirim reset password' })
     } finally {
       setIsLoading(false)

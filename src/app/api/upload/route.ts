@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { uploadMultipleImages, uploadMultipleImagesWithServiceRole } from '@/lib/supabase-storage'
+import { uploadMultipleImagesWithServiceRole } from '@/lib/supabase-storage'
 import { checkStorageStatus } from '@/lib/storage-status'
 import { config } from '@/lib/config'
 import { createClient } from '@supabase/supabase-js'
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
           }
         )
         
-        const { data: bucket, error: createError } = await serviceRoleClient.storage.createBucket(config.supabase.bucketName, {
+        const { error: createError } = await serviceRoleClient.storage.createBucket(config.supabase.bucketName, {
           public: true
         })
         
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
     const uploadResults = await uploadMultipleImagesWithServiceRole(files, 'makanan', serviceRoleClient)
     
     // Check for upload errors
-    const errors = uploadResults.filter((result: any) => result.error)
+    const errors = uploadResults.filter((result: { error?: unknown }) => result.error)
     if (errors.length > 0) {
       console.error('Upload errors:', errors)
       return NextResponse.json(
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Extract URLs and paths
-    const uploadedFiles = uploadResults.map((result: any) => ({
+    const uploadedFiles = uploadResults.map((result: { url: string; path: string }) => ({
       url: result.url,
       path: result.path
     }))

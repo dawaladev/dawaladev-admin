@@ -1,13 +1,5 @@
-import { google } from 'googleapis'
-
-// Service account credentials (you'll need to set these in .env)
-const auth = new google.auth.GoogleAuth({
-  credentials: {
-    client_email: process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL,
-    private_key: process.env.GOOGLE_ANALYTICS_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-  },
-  scopes: ['https://www.googleapis.com/auth/analytics.readonly'],
-})
+// Google Analytics integration
+// TODO: Implement proper Google Analytics v4 API integration when needed
 
 export interface AnalyticsData {
   totalVisitors: number
@@ -88,8 +80,4 @@ export async function getAnalyticsData(): Promise<AnalyticsData> {
   }
 }
 
-function formatDuration(seconds: number): string {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}m ${remainingSeconds}s`
-} 
+ 

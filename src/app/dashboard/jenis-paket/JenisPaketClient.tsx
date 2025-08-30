@@ -6,8 +6,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Modal from '@/components/ui/modal'
-import { Plus, Edit, Trash2, Languages, CheckCircle, AlertCircle } from 'lucide-react'
+import { Plus, Edit, Trash2, Languages } from 'lucide-react'
 import { translateText } from '@/lib/translate'
+
+// Extend Window interface to include translateTimeout
+declare global {
+  interface Window {
+    translateTimeout?: NodeJS.Timeout
+  }
+}
 
 interface JenisPaket {
   id: number
@@ -286,8 +293,8 @@ export default function JenisPaketClient({ jenisPaket }: PageProps) {
                   onChange={(e) => {
                     setNamaPaket(e.target.value)
                     // Auto-translate after user stops typing (debounced)
-                    clearTimeout((window as any).translateTimeout)
-                    ;(window as any).translateTimeout = setTimeout(() => {
+                    clearTimeout(window.translateTimeout)
+                    ;window.translateTimeout = setTimeout(() => {
                       handleAutoTranslate(e.target.value)
                     }, 2000) // Wait 2 seconds after user stops typing
                   }}
@@ -401,8 +408,8 @@ export default function JenisPaketClient({ jenisPaket }: PageProps) {
                   onChange={(e) => {
                     setNamaPaket(e.target.value)
                     // Auto-translate after user stops typing (debounced)
-                    clearTimeout((window as any).translateTimeout)
-                    ;(window as any).translateTimeout = setTimeout(() => {
+                    clearTimeout(window.translateTimeout)
+                    ;window.translateTimeout = setTimeout(() => {
                       handleAutoTranslate(e.target.value)
                     }, 2000) // Wait 2 seconds after user stops typing
                   }}

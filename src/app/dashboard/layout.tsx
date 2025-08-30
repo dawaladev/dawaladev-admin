@@ -1,4 +1,4 @@
-import { createServerSupabaseClient } from '@/lib/supabase-server'
+
 import { redirect } from 'next/navigation'
 import Sidebar from '@/components/Sidebar'
 import { withPrisma } from '@/lib/prisma'
@@ -15,7 +15,7 @@ export default async function DashboardLayout({
   console.log('User authenticated in dashboard layout:', user.email, 'ID:', user.id)
 
   // Get user data with proper error handling
-  let dbUser: any = null
+  let dbUser: { id: string; email: string; role: string; isApproved: boolean } | null = null
   try {
     // Single query to find user by ID or email
     dbUser = await withPrisma(async (client) => {

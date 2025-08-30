@@ -11,7 +11,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Eye, EyeOff, ArrowRight, CheckCircle, Clock, AlertCircle } from 'lucide-react'
+import { Eye, EyeOff, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import AuthLayout from '@/components/auth-layout'
 
 export default function LoginPage() {
@@ -105,7 +105,7 @@ export default function LoginPage() {
           })
 
           if (response.ok) {
-            const { isApproved, role } = await response.json()
+            const { isApproved } = await response.json()
             
             if (isApproved) {
               // User is approved, redirect to dashboard
@@ -134,7 +134,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,

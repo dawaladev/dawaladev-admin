@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-import { handleAuthError, clearAuthSession } from '@/lib/auth-utils'
+import { clearAuthSession } from '@/lib/auth-utils'
 
 interface AuthErrorBoundaryProps {
   children: React.ReactNode

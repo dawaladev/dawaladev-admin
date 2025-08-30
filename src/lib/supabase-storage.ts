@@ -28,7 +28,7 @@ export async function uploadImageToStorage(
     console.log('Generated file path:', filePath)
 
     // Upload file to Supabase Storage
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(config.supabase.bucketName)
       .upload(filePath, file, {
         cacheControl: '3600',
@@ -131,7 +131,7 @@ export async function uploadImageToStorageWithServiceRole(
     console.log('Generated file path:', filePath)
 
     // Upload file to Supabase Storage using service role client
-    const { data, error } = await serviceRoleClient.storage
+    const { error } = await serviceRoleClient.storage
       .from(config.supabase.bucketName)
       .upload(filePath, file, {
         cacheControl: '3600',

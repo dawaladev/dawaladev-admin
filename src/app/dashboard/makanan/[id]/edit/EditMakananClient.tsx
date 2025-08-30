@@ -9,8 +9,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ArrowLeft, Utensils, Upload, X, Image as ImageIcon, Edit, Camera, ChevronDown, AlertCircle, CheckCircle, Languages } from 'lucide-react'
+import { ArrowLeft, Upload, X, Edit, Camera, AlertCircle, CheckCircle, Languages } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { makananSchema, type MakananFormData } from '@/lib/validations'
 import { Toast } from '@/components/ui/toast'
 import { translateText } from '@/lib/translate'
@@ -202,7 +203,7 @@ export default function EditMakananClient({ id }: EditMakananClientProps) {
       }
 
       const data = await response.json()
-      const newImageUrls = data.files.map((file: any) => file.url)
+      const newImageUrls = data.files.map((file: { url: string }) => file.url)
       const newImages = [...uploadedImages, ...newImageUrls]
       setUploadedImages(newImages)
       setValue('foto', newImages)
@@ -580,9 +581,11 @@ export default function EditMakananClient({ id }: EditMakananClientProps) {
                     {uploadedImages.map((url, index) => (
                       <div key={index} className="relative group">
                         <div className="aspect-square rounded-xl overflow-hidden border-2 border-gray-200 hover:border-green-400 transition-colors">
-                          <img
+                          <Image
                             src={url || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMDAgNzBDMTE2LjU2OSA3MCAxMzAgODMuNDMxIDEzMCAxMDBDMTMwIDExNi41NjkgMTE2LjU2OSAxMzAgMTAwIDEzMEM4My40MzEgMTMwIDcwIDExNi41NjkgNzAgMTAwQzcwIDgzLjQzMSA4My40MzEgNzAgMTAwIDcwWiIgZmlsbD0iI0QxRDU5QiIvPgo8cGF0aCBkPSJNMTAwIDE0MEMxMTYuNTY5IDE0MCAxMzAgMTUzLjQzMSAxMzAgMTcwQzEzMCAxODYuNTY5IDExNi41NjkgMjAwIDEwMCAyMDBDODMuNDMxIDIwMCA3MCAxODYuNTY5IDcwIDE3MEM3MCAxNTMuNDMxIDgzLjQzMSAxNDAgMTAwIDE0MFoiIGZpbGw9IiNEQ0U3RjAiLz4KPC9zdmc+'}
                             alt={`Preview ${index + 1}`}
+                            width={200}
+                            height={200}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               // Use a simple data URL for placeholder

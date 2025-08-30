@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Clock, UserCheck, Shield, Trash2, AlertTriangle, Search } from 'lucide-react'
+import Modal from '@/components/ui/modal'
+import { Clock, UserCheck, Trash2, AlertTriangle, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
 interface PendingUser {
@@ -27,13 +28,14 @@ interface ApprovedAdmin {
 
 export default function AdminPage() {
   const router = useRouter()
-  const [userRole, setUserRole] = useState<string>('ADMIN')
+  const [, setUserRole] = useState<string>('ADMIN')
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([])
   const [approvedAdmins, setApprovedAdmins] = useState<ApprovedAdmin[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteAdmin, setDeleteAdmin] = useState<{ id: string; email: string } | null>(null)
+  const [deleteModalLoading, setDeleteModalLoading] = useState(false)
   const [searchPending, setSearchPending] = useState('')
   const [searchApproved, setSearchApproved] = useState('')
 
@@ -139,21 +141,37 @@ export default function AdminPage() {
   const confirmDelete = async () => {
     if (!deleteAdmin) return
 
+    setDeleteModalLoading(true)
     setActionLoading(deleteAdmin.id + '-delete')
+    setShowDeleteModal(false)
+    
     try {
-      await fetch('/api/admin/delete', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: deleteAdmin.id })
+      const response = await fetch(`/api/admin/delete?id=${deleteAdmin.id}`, {
+        method: 'DELETE'
       })
+      
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Delete admin error:', errorData)
+        throw new Error(errorData.error || 'Gagal hapus admin')
+      }
+      
+      const result = await response.json()
+      console.log('Delete admin success:', result)
       window.location.reload()
-    } catch (e) {
-      alert('Gagal hapus admin')
+    } catch (error) {
+      console.error('Delete admin error:', error)
+      alert(error instanceof Error ? error.message : 'Gagal hapus admin')
     } finally {
       setActionLoading(null)
-      setShowDeleteModal(false)
+      setDeleteModalLoading(false)
       setDeleteAdmin(null)
     }
+  }
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false)
+    setDeleteAdmin(null)
   }
 
   // Filter data berdasarkan pencarian
@@ -350,40 +368,56 @@ export default function AdminPage() {
       </div>
 
       {/* Delete Confirmation Modal */}
-      {showDeleteModal && deleteAdmin && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex items-center mb-4">
-              <AlertTriangle className="h-5 w-5 text-red-500 mr-3" />
-              <h3 className="text-lg font-medium text-gray-900">Konfirmasi Hapus Admin</h3>
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={closeDeleteModal}
+        title="Konfirmasi Hapus Admin"
+      >
+        <div className="space-y-6">
+          {/* Header with Icon */}
+          <div className="text-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+              <Trash2 className="h-6 w-6 text-red-600" />
             </div>
-            <p className="text-gray-600 mb-6">
-              Apakah Anda yakin ingin menghapus admin <strong>{deleteAdmin.email}</strong>? 
-              Tindakan ini tidak dapat dibatalkan.
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Konfirmasi Penghapusan Admin</h3>
+            <p className="text-sm text-gray-500">
+              Apakah Anda yakin ingin menghapus admin <strong>{deleteAdmin?.email}</strong>?
             </p>
-            <div className="flex space-x-3">
-              <Button
-                variant="destructive"
-                onClick={confirmDelete}
-                disabled={actionLoading === deleteAdmin.id + '-delete'}
-                className="flex-1"
-              >
-                {actionLoading === deleteAdmin.id + '-delete' ? 'Menghapus...' : 'Hapus'}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowDeleteModal(false)
-                  setDeleteAdmin(null)
-                }}
-                className="flex-1"
-              >
-                Batal
-              </Button>
-            </div>
+            <p className="text-xs text-red-600 mt-2">
+              ⚠️ Tindakan ini tidak dapat dibatalkan
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex space-x-3 pt-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={closeDeleteModal}
+              className="flex-1 h-11 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium rounded-lg"
+            >
+              Batal
+            </Button>
+            <Button
+              onClick={confirmDelete}
+              disabled={deleteModalLoading}
+              className="flex-1 h-11 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-sm"
+            >
+              {deleteModalLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Menghapus...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Trash2 className="h-4 w-4" />
+                  Ya, Hapus
+                </div>
+              )}
+            </Button>
           </div>
         </div>
-      )}
+      </Modal>
     </div>
   )
 } 

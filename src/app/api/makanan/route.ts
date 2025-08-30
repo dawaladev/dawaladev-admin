@@ -23,13 +23,13 @@ export async function GET() {
     })
 
     // Parse foto URLs from JSON string
-    const makananWithParsedFoto = makanan.map((item: any) => ({
+    const makananWithParsedFoto = makanan.map((item) => ({
       ...item,
       foto: JSON.parse(item.foto)
     }))
 
     return NextResponse.json(makananWithParsedFoto)
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

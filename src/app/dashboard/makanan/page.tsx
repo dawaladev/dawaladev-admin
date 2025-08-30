@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -34,7 +34,7 @@ interface JenisPaket {
 export default function MakananPage() {
   const [makanan, setMakanan] = useState<Makanan[]>([])
   const [jenisPaket, setJenisPaket] = useState<JenisPaket[]>([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -46,7 +46,7 @@ export default function MakananPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteItem, setDeleteItem] = useState<{id: number, name: string, type: 'makanan' | 'jenis-paket'} | null>(null)
   const [deleteModalLoading, setDeleteModalLoading] = useState(false)
-  const router = useRouter()
+
 
   useEffect(() => {
     fetchData()
@@ -673,7 +673,7 @@ export default function MakananPage() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Konfirmasi Penghapusan</h3>
             <p className="text-sm text-gray-500">
-              Apakah Anda yakin ingin menghapus {deleteItem?.type === 'makanan' ? 'menu' : 'jenis paket'} "{deleteItem?.name}"?
+              Apakah Anda yakin ingin menghapus {deleteItem?.type === 'makanan' ? 'menu' : 'jenis paket'} &quot;{deleteItem?.name}&quot;?
             </p>
             {deleteItem?.type === 'makanan' && (
               <p className="text-xs text-red-600 mt-2">

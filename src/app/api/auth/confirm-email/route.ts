@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
         data = { user }
         verifyError = null
       } else {
-        verifyError = exchangeError as any
+        verifyError = exchangeError instanceof Error ? exchangeError : new Error('Unknown error occurred')
       }
     }
 

@@ -6,7 +6,7 @@ export interface AuthError {
   status?: number
 }
 
-export async function handleAuthError(error: any): Promise<AuthError> {
+export async function handleAuthError(error: unknown): Promise<AuthError> {
   console.error('Auth error:', error)
   
   // Handle specific Supabase auth errors
@@ -107,7 +107,7 @@ export async function refreshAuthSession(): Promise<boolean> {
   }
 }
 
-export function isAuthError(error: any): boolean {
+export function isAuthError(error: unknown): boolean {
   return error?.message?.includes('Invalid Refresh Token') ||
          error?.message?.includes('Refresh Token Not Found') ||
          error?.message?.includes('Invalid login credentials') ||

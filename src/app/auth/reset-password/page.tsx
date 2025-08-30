@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Eye, EyeOff, Lock, CheckCircle, ArrowRight } from 'lucide-react'
+import { Eye, EyeOff, CheckCircle, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 import { resetPasswordSchema, type ResetPasswordFormData } from '@/lib/validations'
 import AuthLayout from '@/components/auth-layout'
@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push('/auth/login')
       }, 3000)
-    } catch (error) {
+    } catch {
       // Redirect to login with error message instead of showing error in form
       router.push('/auth/login?message=Terjadi kesalahan saat reset password. Silakan coba lagi.')
     } finally {

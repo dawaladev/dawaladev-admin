@@ -62,7 +62,7 @@ export default function CallbackPage() {
           })
 
           if (checkResponse.ok) {
-            const { isApproved, role } = await checkResponse.json()
+            const { isApproved } = await checkResponse.json()
             
             if (isApproved) {
               // User is approved, redirect to dashboard

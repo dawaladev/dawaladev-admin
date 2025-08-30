@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Languages, Globe } from 'lucide-react'
+import { Languages } from 'lucide-react'
 
 interface MultiLangTextProps {
   textEn?: string

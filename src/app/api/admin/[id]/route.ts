@@ -33,7 +33,7 @@ export async function GET(
     }
 
     return NextResponse.json(admin)
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -165,7 +165,7 @@ export async function DELETE(
     })
 
     return NextResponse.json({ message: 'Admin deleted successfully' })
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
