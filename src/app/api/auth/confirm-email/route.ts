@@ -28,6 +28,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/auth/login?message=Invalid confirmation link`)
   }
 
+  // Check if this is a password recovery request
+  if (type === 'recovery') {
+    console.log('Password recovery request detected')
+    // For password recovery, redirect to reset password page with the code
+    return NextResponse.redirect(`${origin}/auth/reset-password?code=${code}`)
+  }
+
   try {
     const supabase = await createServerSupabaseClient()
     

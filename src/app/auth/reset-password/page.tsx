@@ -34,12 +34,36 @@ export default function ResetPasswordPage() {
     // Check if we have the necessary parameters
     const accessToken = searchParams.get('access_token')
     const refreshToken = searchParams.get('refresh_token')
+    const code = searchParams.get('code')
     
-    if (!accessToken || !refreshToken) {
+    // If we have a code from the confirm-email API, we need to exchange it for a session
+    if (code && !accessToken && !refreshToken) {
+      const exchangeCodeForSession = async () => {
+        try {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+          
+          if (error) {
+            console.error('Error exchanging code for session:', error)
+            router.push('/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa')
+            return
+          }
+          
+          if (data.session) {
+            // Session established, user can now reset password
+            console.log('Session established for password reset')
+          }
+        } catch (err) {
+          console.error('Error in code exchange:', err)
+          router.push('/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa')
+        }
+      }
+      
+      exchangeCodeForSession()
+    } else if (!accessToken || !refreshToken) {
       // Redirect to login with error message instead of showing error in form
       router.push('/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa')
     }
-  }, [searchParams, router])
+  }, [searchParams, router, supabase.auth])
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     setIsLoading(true)
