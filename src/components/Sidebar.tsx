@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   X,
-  LayoutDashboard
+  LayoutDashboard,
+  Settings
 } from 'lucide-react'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
@@ -79,7 +80,14 @@ export default function Sidebar({ userRole, pendingAdminCount: initialPendingCou
       href: '/dashboard/makanan',
       icon: Utensils,
       current: pathname.startsWith('/dashboard/makanan')
-    }
+    },
+    // Only show "Settings" for SUPER_ADMIN
+    ...(userRole === 'SUPER_ADMIN' ? [{
+      name: 'Settings',
+      href: '/dashboard/settings',
+      icon: Settings,
+      current: pathname.startsWith('/dashboard/settings')
+    }] : [])
   ]
 
   const handleLogout = async () => {

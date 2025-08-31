@@ -54,6 +54,22 @@ async function main() {
       console.log('ℹ️ Auth user creation skipped (may already exist)')
     }
 
+    // Create default settings
+    console.log('⚙️ Creating default settings...')
+    const existingSettings = await prisma.setting.count()
+    
+    if (existingSettings === 0) {
+      await prisma.setting.create({
+        data: {
+          email: 'admin@dawaladev.com',
+          noTelp: '+62 812-3456-7890',
+        },
+      })
+      console.log('✅ Default settings created')
+    } else {
+      console.log('ℹ️ Settings already exist, skipping creation')
+    }
+
     // Check if data already exists
     const existingPaket = await prisma.jenisPaket.count()
     const existingMakanan = await prisma.makanan.count()

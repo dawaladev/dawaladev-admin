@@ -1,259 +1,267 @@
-import { prisma } from '@/lib/prisma'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Settings, Database, Users, Package, Utensils } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Settings, Save, Mail, Phone } from 'lucide-react'
+import { createClient } from '@/lib/supabase'
 
-export default async function SettingsPage() {
-  const supabase = await createServerSupabaseClient()
-  
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+interface Setting {
+  id: number
+  email: string
+  noTelp: string
+  createdAt: Date
+  updatedAt: Date
+}
 
-  if (!user) {
-    redirect('/auth/login')
+export default function SettingsPage() {
+  const router = useRouter()
+  const [userRole, setUserRole] = useState<string>('ADMIN')
+  const [settings, setSettings] = useState<Setting[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [editingSetting, setEditingSetting] = useState<Setting | null>(null)
+  const [formData, setFormData] = useState({
+    email: '',
+    noTelp: ''
+  })
+
+  useEffect(() => {
+    const checkAuthAndFetchData = async () => {
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          router.push('/auth/login')
+          return
+        }
+        
+        // Check user role
+        const userResponse = await fetch('/api/auth/check-user-role', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id })
+        })
+        
+        if (userResponse.ok) {
+          const { role } = await userResponse.json()
+          setUserRole(role)
+          if (role !== 'SUPER_ADMIN') {
+            router.push('/dashboard')
+            return
+          }
+        }
+        
+        // Fetch settings
+        const settingsResponse = await fetch('/api/settings')
+        if (settingsResponse.ok) {
+          const settingsData = await settingsResponse.json()
+          setSettings(settingsData)
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    checkAuthAndFetchData()
+  }, [router])
+
+  const handleEdit = (setting: Setting) => {
+    setEditingSetting(setting)
+    setFormData({
+      email: setting.email,
+      noTelp: setting.noTelp
+    })
   }
 
-  try {
-    // Get user role
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
+  const handleCancel = () => {
+    setEditingSetting(null)
+    setFormData({
+      email: '',
+      noTelp: ''
     })
+  }
 
-    const userRole = dbUser?.role || 'ADMIN'
-
-    // Get system statistics sequentially to avoid prepared statement issues
-    const jenisPaketCount = await prisma.jenisPaket.count()
-    const makananCount = await prisma.makanan.count()
-    const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } })
-    const totalHargaResult = await prisma.makanan.aggregate({
-      _sum: {
-        harga: true
+  const handleSave = async () => {
+    if (!editingSetting) return
+    
+    setIsSaving(true)
+    try {
+      const response = await fetch(`/api/settings/${editingSetting.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        alert(data.message || 'Settings berhasil diperbarui')
+        // Update settings list
+        setSettings(settings.map(setting => 
+          setting.id === editingSetting.id 
+            ? { ...setting, ...formData, updatedAt: new Date() }
+            : setting
+        ))
+        handleCancel()
+      } else {
+        alert(data.error || 'Gagal memperbarui settings')
       }
-    })
+    } catch (error) {
+      console.error('Error updating settings:', error)
+      alert('Gagal memperbarui settings')
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
-    const stats = [
-      {
-        title: 'Total Jenis Paket',
-        value: jenisPaketCount,
-        icon: Package,
-        color: 'bg-blue-500'
-      },
-      {
-        title: 'Total Makanan',
-        value: makananCount,
-        icon: Utensils,
-        color: 'bg-green-500'
-      },
-      {
-        title: 'Total Admin',
-        value: adminCount,
-        icon: Users,
-        color: 'bg-purple-500'
-      },
-      {
-        title: 'Total Nilai Makanan',
-        value: `Rp ${totalHargaResult._sum.harga?.toLocaleString() || 0}`,
-        icon: Database,
-        color: 'bg-yellow-500'
-      }
-    ]
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
 
+  if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Pengaturan Sistem</h1>
-          <p className="text-gray-600">Kelola konfigurasi dan lihat statistik sistem</p>
-        </div>
+      <div className="p-6 lg:p-8 flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      </div>
+    )
+  }
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon
-            return (
-              <div key={index} className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-center">
-                  <div className={`p-3 rounded-full ${stat.color}`}>
-                    <Icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-semibold text-gray-900">{stat.value}</p>
+  return (
+    <div className="p-6 lg:p-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+        <p className="text-gray-600">Kelola pengaturan sistem seperti email dan nomor telepon.</p>
+      </div>
+
+      <div className="max-w-4xl">
+        {settings.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+            <Settings className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada settings</h3>
+            <p className="text-gray-500">Settings akan muncul di sini setelah dibuat.</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {settings.map((setting) => (
+              <div key={setting.id} className="bg-white rounded-xl shadow-sm border border-gray-200">
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Settings className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Pengaturan Sistem</h3>
+                        <p className="text-sm text-gray-600">
+                          Terakhir diubah: {new Date(setting.updatedAt).toLocaleDateString('id-ID')}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => handleEdit(setting)}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Edit
+                    </Button>
                   </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center mb-4">
-              <Settings className="h-5 w-5 text-gray-400 mr-2" />
-              <h2 className="text-lg font-medium text-gray-900">Informasi Sistem</h2>
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Versi Aplikasi:</span>
-                <span className="text-sm font-medium">1.0.0</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Framework:</span>
-                <span className="text-sm font-medium">Next.js 15</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Database:</span>
-                <span className="text-sm font-medium">PostgreSQL</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Authentication:</span>
-                <span className="text-sm font-medium">Supabase Auth</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center mb-4">
-              <Users className="h-5 w-5 text-gray-400 mr-2" />
-              <h2 className="text-lg font-medium text-gray-900">Informasi User</h2>
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Email:</span>
-                <span className="text-sm font-medium">{user.email}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Role:</span>
-                <span className="text-sm font-medium">{userRole}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">User ID:</span>
-                <span className="text-sm font-medium font-mono">{user.id}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {userRole === 'SUPER_ADMIN' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <div className="flex items-start">
-              <Settings className="h-5 w-5 text-blue-400 mt-0.5 mr-3" />
-              <div>
-                <h3 className="text-lg font-medium text-blue-800">Super Admin Access</h3>
-                <p className="text-sm text-blue-700 mt-1">
-                  Anda memiliki akses penuh sebagai Super Admin. Anda dapat mengelola semua data, 
-                  admin, dan konfigurasi sistem.
-                </p>
-                <div className="mt-4 space-y-2">
-                  <Button variant="outline" size="sm" className="mr-2">
-                    Backup Database
-                  </Button>
-                  <Button variant="outline" size="sm" className="mr-2">
-                    Export Data
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    System Logs
-                  </Button>
+                
+                <div className="px-6 py-4">
+                  {editingSetting?.id === setting.id ? (
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                          Email
+                        </Label>
+                        <div className="mt-1 relative">
+                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            id="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                            className="pl-10"
+                            placeholder="Masukkan email"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="noTelp" className="text-sm font-medium text-gray-700">
+                          Nomor Telepon / WhatsApp
+                        </Label>
+                        <div className="mt-1 relative">
+                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                          <Input
+                            id="noTelp"
+                            type="tel"
+                            value={formData.noTelp}
+                            onChange={(e) => handleInputChange('noTelp', e.target.value)}
+                            className="pl-10"
+                            placeholder="Masukkan nomor telepon / WhatsApp"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="flex space-x-3 pt-4">
+                        <Button
+                          onClick={handleSave}
+                          disabled={isSaving}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          {isSaving ? (
+                            <div className="flex items-center gap-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              Menyimpan...
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <Save className="h-4 w-4" />
+                              Simpan
+                            </div>
+                          )}
+                        </Button>
+                        <Button
+                          onClick={handleCancel}
+                          variant="outline"
+                          className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                        >
+                          Batal
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                        <Mail className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Email</p>
+                          <p className="text-gray-900">{setting.email}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                        <Phone className="h-5 w-5 text-gray-400" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-700">Nomor Telepon / WhatsApp</p>
+                          <p className="text-gray-900">{setting.noTelp}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         )}
-
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-          <div className="flex items-start">
-            <Database className="h-5 w-5 text-gray-400 mt-0.5 mr-3" />
-            <div>
-              <h3 className="text-lg font-medium text-gray-800">Database Status</h3>
-              <p className="text-sm text-gray-600 mt-1">
-                Sistem database berjalan dengan normal. Semua operasi CRUD berfungsi dengan baik.
-              </p>
-              <div className="mt-4">
-                <div className="flex items-center">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  <span className="text-sm text-gray-600">Database Connected</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    )
-  } catch (error) {
-    console.error('Settings error:', error)
-    
-    // Return a fallback UI if database queries fail
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Pengaturan Sistem</h1>
-          <p className="text-gray-600">Kelola konfigurasi dan lihat statistik sistem</p>
-        </div>
-
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-yellow-800">
-                Terjadi kesalahan saat memuat data
-              </h3>
-              <div className="mt-2 text-sm text-yellow-700">
-                <p>
-                  Tidak dapat memuat statistik sistem. Silakan coba refresh halaman atau hubungi administrator.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center mb-4">
-              <Settings className="h-5 w-5 text-gray-400 mr-2" />
-              <h2 className="text-lg font-medium text-gray-900">Informasi Sistem</h2>
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Versi Aplikasi:</span>
-                <span className="text-sm font-medium">1.0.0</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Framework:</span>
-                <span className="text-sm font-medium">Next.js 15</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Database:</span>
-                <span className="text-sm font-medium">PostgreSQL</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Authentication:</span>
-                <span className="text-sm font-medium">Supabase Auth</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center mb-4">
-              <Users className="h-5 w-5 text-gray-400 mr-2" />
-              <h2 className="text-lg font-medium text-gray-900">Informasi User</h2>
-            </div>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Email:</span>
-                <span className="text-sm font-medium">{user.email}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">User ID:</span>
-                <span className="text-sm font-medium font-mono">{user.id}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-} 
+    </div>
+  )
+}

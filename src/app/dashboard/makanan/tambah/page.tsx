@@ -365,7 +365,7 @@ export default function TambahMakananPage() {
                     handleAutoTranslateDescription(e.target.value)
                   }, 2000) // Wait 2 seconds after user stops typing
                 }}
-                placeholder="Deskripsikan menu makanan dengan detail... (minimal 10 karakter, maksimal 2000 karakter)"
+                placeholder="Deskripsikan menu makanan dengan detail... (minimal 10 karakter, maksimal 10000 karakter)"
                 className={`min-h-[240px] text-base resize-none w-full ${errors.deskripsi ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-green-500'}`}
               />
               {errors.deskripsi && (

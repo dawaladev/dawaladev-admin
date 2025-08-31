@@ -66,6 +66,16 @@ model Makanan {
   @@map("makanan")
 }
 
+model Setting {
+  id        Int      @id @default(autoincrement())
+  email     String
+  noTelp    String   @map("no_telp")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
