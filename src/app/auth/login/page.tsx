@@ -202,7 +202,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+              <Label htmlFor="password" className="text-gray-700 font-medium">Kata Sandi</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -229,7 +229,7 @@ export default function LoginPage() {
                 href="/auth/forgot-password"
                 className="text-sm text-green-600 hover:text-green-700 font-medium"
               >
-                Lupa password?
+                Lupa Kata Sandi?
               </Link>
             </div>
 
@@ -242,7 +242,7 @@ export default function LoginPage() {
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-red-700 font-medium">Login Gagal</p>
+                <p className="text-sm text-red-700 font-medium">Masuk Gagal</p>
                 <p className="text-sm text-red-600 mt-1">{error}</p>
               </div>
             </div>

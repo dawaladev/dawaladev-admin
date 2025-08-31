@@ -82,7 +82,7 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <AuthLayout 
-        title="Password Berhasil Diubah"
+        title="Kata Sandi Berhasil Diubah"
       >
         <div className="text-center space-y-6">
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
@@ -91,7 +91,7 @@ export default function ResetPasswordPage() {
           
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
             <p className="text-sm text-green-700">
-              Password Anda telah berhasil diubah. Anda akan dialihkan ke halaman login dalam beberapa detik.
+              Kata Sandi Anda telah berhasil diubah. Anda akan dialihkan ke halaman login dalam beberapa detik.
             </p>
           </div>
         </div>
@@ -101,16 +101,16 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthLayout 
-      title="Reset Password"
+      title="Reset Kata Sandi"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-gray-700 font-medium">Password Baru</Label>
+          <Label htmlFor="password" className="text-gray-700 font-medium">Kata Sandi Baru</Label>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Masukkan password baru (min. 6 karakter)"
+              placeholder="Masukkan kata sandi baru (min. 6 karakter)"
               {...register('password')}
               className="h-10 pr-12 rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500 bg-white/50 backdrop-blur-sm"
             />
@@ -128,12 +128,12 @@ export default function ResetPasswordPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">Konfirmasi Password</Label>
+          <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">Konfirmasi Kata Sandi</Label>
           <div className="relative">
             <Input
               id="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Konfirmasi password baru"
+              placeholder="Konfirmasi kata sandi baru"
               {...register('confirmPassword')}
               className="h-10 pr-12 rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500 bg-white/50 backdrop-blur-sm"
             />
@@ -160,11 +160,11 @@ export default function ResetPasswordPage() {
           {isLoading ? (
             <div className="flex items-center">
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              Mengubah Password...
+              Mengubah Kata Sandi...
             </div>
           ) : (
             <div className="flex items-center justify-center">
-              Ubah Password
+              Ubah Kata Sandi
               <ArrowRight className="ml-2 h-4 w-4" />
             </div>
           )}

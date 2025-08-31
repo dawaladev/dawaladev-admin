@@ -129,7 +129,7 @@ export default function ForgotPasswordPage() {
             </div>
           ) : (
             <div className="flex items-center justify-center">
-              Kirim Reset Password
+              Kirim Reset Kata Sandi
               <ArrowRight className="ml-2 h-4 w-4" />
             </div>
           )}
@@ -141,7 +141,7 @@ export default function ForgotPasswordPage() {
             className="inline-flex items-center text-sm text-green-600 hover:text-green-700 font-medium"
           >
             <ArrowLeft className="mr-1 h-4 w-4" />
-            Kembali ke Login
+            Kembali ke Halaman Masuk
           </Link>
         </div>
       </form>

@@ -99,7 +99,7 @@ export default function SettingsPage() {
       const data = await response.json()
       
       if (response.ok) {
-        alert(data.message || 'Settings berhasil diperbarui')
+        alert(data.message || 'Pengaturan berhasil diperbarui')
         // Update settings list
         setSettings(settings.map(setting => 
           setting.id === editingSetting.id 
@@ -108,11 +108,11 @@ export default function SettingsPage() {
         ))
         handleCancel()
       } else {
-        alert(data.error || 'Gagal memperbarui settings')
+        alert(data.error || 'Gagal memperbarui pengaturan')
       }
     } catch (error) {
       console.error('Error updating settings:', error)
-      alert('Gagal memperbarui settings')
+      alert('Gagal memperbarui pengaturan')
     } finally {
       setIsSaving(false)
     }
@@ -136,7 +136,7 @@ export default function SettingsPage() {
   return (
     <div className="p-6 lg:p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Pengaturan</h1>
         <p className="text-gray-600">Kelola pengaturan sistem seperti email dan nomor telepon.</p>
       </div>
 
@@ -144,8 +144,8 @@ export default function SettingsPage() {
         {settings.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
             <Settings className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada settings</h3>
-            <p className="text-gray-500">Settings akan muncul di sini setelah dibuat.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada pengaturan</h3>
+            <p className="text-gray-500">Pengaturan akan muncul di sini setelah dibuat.</p>
           </div>
         ) : (
           <div className="space-y-6">

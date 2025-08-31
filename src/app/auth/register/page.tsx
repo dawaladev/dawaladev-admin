@@ -128,12 +128,12 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+          <Label htmlFor="password" className="text-gray-700 font-medium">Kata Sandi</Label>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="Masukkan password"
+              placeholder="Masukkan kata sandi"
               {...register('password')}
               className="h-10 rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500 bg-white/50 backdrop-blur-sm pr-10"
             />
@@ -155,12 +155,12 @@ export default function RegisterPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">Konfirmasi Password</Label>
+          <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">Konfirmasi Kata Sandi</Label>
           <div className="relative">
             <Input
               id="confirmPassword"
               type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Konfirmasi password"
+              placeholder="Konfirmasi kata sandi"
               {...register('confirmPassword')}
               className="h-10 rounded-lg border-gray-200 focus:border-green-500 focus:ring-green-500 bg-white/50 backdrop-blur-sm pr-10"
             />
@@ -265,7 +265,7 @@ export default function RegisterPage() {
               href="/auth/login"
               className="text-green-600 hover:text-green-700 font-medium"
             >
-              Login
+              Masuk
             </Link>
           </p>
         </div>

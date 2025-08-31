@@ -83,7 +83,7 @@ export default function Sidebar({ userRole, pendingAdminCount: initialPendingCou
     },
     // Only show "Settings" for SUPER_ADMIN
     ...(userRole === 'SUPER_ADMIN' ? [{
-      name: 'Settings',
+      name: 'Pengaturan',
       href: '/dashboard/settings',
       icon: Settings,
       current: pathname.startsWith('/dashboard/settings')
@@ -202,7 +202,7 @@ export default function Sidebar({ userRole, pendingAdminCount: initialPendingCou
               className="flex w-full items-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors cursor-pointer"
             >
               <LogOut className="mr-3 h-5 w-5 text-gray-400" />
-              Log Out
+              Keluar
             </button>
           </div>
         </div>
