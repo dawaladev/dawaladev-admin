@@ -29,8 +29,42 @@ export default function ForgotPasswordPage() {
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true)
     setError('root', { message: '' })
+    setSuccess('')
     
     try {
+      // First, check if user exists in our database
+      try {
+        const checkResponse = await fetch('/api/auth/check-user-exists', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: data.email }),
+        })
+
+        if (checkResponse.ok) {
+          const { exists, isPending } = await checkResponse.json()
+          
+          if (!exists && !isPending) {
+            setError('root', { message: 'Email belum terdaftar di sistem. Silakan daftar terlebih dahulu atau periksa email Anda.' })
+            setIsLoading(false)
+            return
+          }
+          
+          if (isPending) {
+            setError('root', { message: 'Akun Anda masih dalam proses pendaftaran. Silakan tunggu persetujuan Super Admin terlebih dahulu.' })
+            setIsLoading(false)
+            return
+          }
+        }
+      } catch (checkError) {
+        console.error('Error checking user existence:', checkError)
+        setError('root', { message: 'Terjadi kesalahan saat memverifikasi email. Silakan coba lagi.' })
+        setIsLoading(false)
+        return
+      }
+
+      // If user exists and is approved, proceed with password reset
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       })

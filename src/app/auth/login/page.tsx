@@ -24,16 +24,45 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const supabase = createClient()
 
+  // Handle modal close
+  const handleCloseModal = () => {
+    setShowSuccessModal(false)
+    setSuccessMessage('')
+  }
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showSuccessModal) {
+        handleCloseModal()
+      }
+    }
+
+    if (showSuccessModal) {
+      document.addEventListener('keydown', handleEscape)
+      return () => document.removeEventListener('keydown', handleEscape)
+    }
+  }, [showSuccessModal])
+
   // Check for success message from URL params
   useEffect(() => {
     const message = searchParams.get('message')
-    if (message) {
-      setSuccessMessage(message)
-      setShowSuccessModal(true)
-      // Clear the message from URL
-      const newUrl = new URL(window.location.href)
-      newUrl.searchParams.delete('message')
-      window.history.replaceState({}, '', newUrl.toString())
+    if (message && message.trim() !== '') {
+      // Only show modal for specific success messages
+      const validSuccessMessages = [
+        'Registration successful! Please wait for Super Admin approval.',
+        'Email confirmed! Please wait for Super Admin approval.',
+        'Email confirmed but database error occurred. Please contact admin.'
+      ]
+      
+      if (validSuccessMessages.includes(message)) {
+        setSuccessMessage(message)
+        setShowSuccessModal(true)
+        // Clear the message from URL
+        const newUrl = new URL(window.location.href)
+        newUrl.searchParams.delete('message')
+        window.history.replaceState({}, '', newUrl.toString())
+      }
     }
   }, [searchParams])
 
@@ -288,8 +317,25 @@ export default function LoginPage() {
 
           {/* Success Modal */}
           {showSuccessModal && (
-            <div className="fixed inset-0 backdrop-blur-sm rounded-2xl bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+            <div 
+              className="fixed inset-0 backdrop-blur-sm rounded-2xl bg-opacity-50 flex items-center justify-center z-50 p-4"
+              onClick={handleCloseModal}
+            >
+              <div 
+                className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all relative"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Close button */}
+                <button
+                  onClick={handleCloseModal}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+                  aria-label="Tutup modal"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                
                 <div className="text-center">
                   {/* Icon */}
                   <div className={`mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-4 ${
@@ -333,7 +379,7 @@ export default function LoginPage() {
                   {/* Action Buttons */}
                   <div className="space-y-3">
                     <Button
-                      onClick={() => setShowSuccessModal(false)}
+                      onClick={handleCloseModal}
                       className={`w-full font-medium py-3 px-4 rounded-lg transition-colors ${
                         successMessage.includes('pending approval') 
                           ? 'bg-orange-600 hover:bg-orange-700 text-white' 
