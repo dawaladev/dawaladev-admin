@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff, ArrowRight, Mail, CheckCircle, Clock } from 'lucide-react'
 import AuthLayout from '@/components/auth-layout'
+import { getSiteUrl } from '@/lib/config'
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -43,7 +44,7 @@ export default function RegisterPage() {
           data: {
             name: data.name,
           },
-          emailRedirectTo: `${window.location.origin}/api/auth/confirm-email`,
+          emailRedirectTo: `${getSiteUrl()}/api/auth/confirm-email`,
         },
       })
 
@@ -222,7 +223,7 @@ export default function RegisterPage() {
               const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                  redirectTo: `${window.location.origin}/auth/callback`,
+                  redirectTo: `${getSiteUrl()}/auth/callback`,
                 },
               })
               

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Eye, EyeOff, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import AuthLayout from '@/components/auth-layout'
+import { getSiteUrl } from '@/lib/config'
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -166,7 +167,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${getSiteUrl()}/auth/callback`,
         },
       })
       

@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react'
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '@/lib/validations'
 import AuthLayout from '@/components/auth-layout'
+import { getSiteUrl } from '@/lib/config'
 
 export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState('')
@@ -66,7 +67,7 @@ export default function ForgotPasswordPage() {
 
       // If user exists and is approved, proceed with password reset
       const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: `${getSiteUrl()}/auth/reset-password`,
       })
 
       if (error) {
