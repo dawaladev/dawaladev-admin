@@ -31,8 +31,25 @@ export async function GET(request: NextRequest) {
   // Check if this is a password recovery request
   if (type === 'recovery') {
     console.log('Password recovery request detected')
-    // For password recovery, redirect to reset password page with the code
-    return NextResponse.redirect(`${origin}/auth/reset-password?code=${code}`)
+    // For password recovery, we need to exchange the code for a session first
+    try {
+      const supabase = await createServerSupabaseClient()
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+      
+      if (error) {
+        console.error('Error exchanging recovery code for session:', error)
+        return NextResponse.redirect(`${origin}/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa`)
+      }
+      
+      if (data.session) {
+        console.log('Recovery session established for user:', data.user?.email)
+        // Redirect to reset password page with session established
+        return NextResponse.redirect(`${origin}/auth/reset-password`)
+      }
+    } catch (recoveryError) {
+      console.error('Error in password recovery:', recoveryError)
+      return NextResponse.redirect(`${origin}/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa`)
+    }
   }
 
   try {

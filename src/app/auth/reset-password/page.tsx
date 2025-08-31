@@ -31,39 +31,26 @@ export default function ResetPasswordPage() {
   })
 
   useEffect(() => {
-    // Check if we have the necessary parameters
-    const accessToken = searchParams.get('access_token')
-    const refreshToken = searchParams.get('refresh_token')
-    const code = searchParams.get('code')
-    
-    // If we have a code from the confirm-email API, we need to exchange it for a session
-    if (code && !accessToken && !refreshToken) {
-      const exchangeCodeForSession = async () => {
-        try {
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-          
-          if (error) {
-            console.error('Error exchanging code for session:', error)
-            router.push('/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa')
-            return
-          }
-          
-          if (data.session) {
-            // Session established, user can now reset password
-            console.log('Session established for password reset')
-          }
-        } catch (err) {
-          console.error('Error in code exchange:', err)
+    // Check if user has a valid session for password reset
+    const checkSession = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        
+        if (error || !user) {
+          console.error('No valid session for password reset:', error)
           router.push('/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa')
+          return
         }
+        
+        console.log('Valid session found for password reset:', user.email)
+      } catch (err) {
+        console.error('Error checking session:', err)
+        router.push('/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa')
       }
-      
-      exchangeCodeForSession()
-    } else if (!accessToken || !refreshToken) {
-      // Redirect to login with error message instead of showing error in form
-      router.push('/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa')
     }
-  }, [searchParams, router, supabase.auth])
+    
+    checkSession()
+  }, [router, supabase.auth])
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     setIsLoading(true)
