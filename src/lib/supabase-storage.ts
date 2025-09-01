@@ -65,21 +65,124 @@ export async function uploadImageToStorage(
 
 export async function deleteImageFromStorage(filePath: string): Promise<boolean> {
   try {
-    const supabase = await createServerSupabaseClient()
+    console.log(`🗑️ Attempting to delete file: ${filePath} from bucket: ${config.supabase.bucketName}`)
     
-    const { error } = await supabase.storage
+    // Use service role client directly for delete operations
+    const serviceRoleClient = await createServiceRoleClient()
+    
+    // First, list all files to see what's actually there
+    const { data: allFiles, error: listError } = await serviceRoleClient.storage
+      .from(config.supabase.bucketName)
+      .list('makanan')
+    
+    if (listError) {
+      console.error('❌ Error listing files:', listError)
+      return false
+    }
+    
+    console.log(`📁 All files in storage:`, allFiles?.map(f => f.name) || [])
+    
+    // Check if our target file exists
+    const fileName = filePath.replace('makanan/', '')
+    const fileExists = allFiles?.some(f => f.name === fileName)
+    console.log(`📁 Target file "${fileName}" exists:`, fileExists)
+    
+    if (!fileExists) {
+      console.warn(`⚠️ File ${fileName} not found in storage, skipping deletion`)
+      return true // Consider this a success since file doesn't exist
+    }
+    
+    // Delete the file with service role client
+    const { error } = await serviceRoleClient.storage
       .from(config.supabase.bucketName)
       .remove([filePath])
 
     if (error) {
-      console.error('Delete error:', error)
+      console.error('❌ Delete error:', error)
+      console.error('Error details:', {
+        message: error.message,
+        statusCode: error.statusCode,
+        filePath: filePath,
+        bucketName: config.supabase.bucketName
+      })
       return false
     }
 
+    console.log('✅ Delete command executed successfully')
+
+    // Verify deletion by listing files again
+    const { data: filesAfterDelete, error: verifyError } = await serviceRoleClient.storage
+      .from(config.supabase.bucketName)
+      .list('makanan')
+    
+    if (verifyError) {
+      console.warn('⚠️ Could not verify deletion:', verifyError.message)
+    } else {
+      const stillExists = filesAfterDelete?.some(f => f.name === fileName)
+      console.log(`📁 File "${fileName}" still exists after deletion:`, stillExists)
+      
+      if (stillExists) {
+        console.error(`❌ File ${fileName} still exists after deletion attempt!`)
+        return false
+      }
+    }
+
+    console.log(`✅ Successfully deleted file: ${filePath}`)
     return true
   } catch (error) {
-    console.error('Storage delete error:', error)
+    console.error('❌ Storage delete error:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      filePath: filePath,
+      bucketName: config.supabase.bucketName
+    })
     return false
+  }
+}
+
+// Helper function to create service role client
+async function createServiceRoleClient() {
+  const { createClient } = await import('@supabase/supabase-js')
+  
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set')
+  }
+  
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}
+
+// Helper function to extract filename from URL more robustly
+export function extractFileNameFromUrl(url: string): string | null {
+  try {
+    if (!url || typeof url !== 'string') {
+      return null
+    }
+    
+    // Remove query parameters if any
+    const cleanUrl = url.split('?')[0]
+    
+    // Split by '/' and get the last part
+    const urlParts = cleanUrl.split('/')
+    const fileName = urlParts[urlParts.length - 1]
+    
+    // Validate filename (should not be empty and should have extension)
+    if (fileName && fileName.includes('.')) {
+      return fileName
+    }
+    
+    return null
+  } catch (error) {
+    console.error('Error extracting filename from URL:', url, error)
+    return null
   }
 }
 
@@ -172,10 +275,11 @@ export async function cleanupOrphanedImages(): Promise<{
   totalDeleted: number
 }> {
   try {
-    const supabase = await createServerSupabaseClient()
+    // Use service role client for cleanup operations
+    const serviceRoleClient = await createServiceRoleClient()
     
     // Get all files in the makanan folder
-    const { data: files, error: listError } = await supabase.storage
+    const { data: files, error: listError } = await serviceRoleClient.storage
       .from(config.supabase.bucketName)
       .list('makanan')
     
@@ -204,8 +308,7 @@ export async function cleanupOrphanedImages(): Promise<{
         
         fotoUrls.forEach((url: string) => {
           if (url && typeof url === 'string') {
-            const urlParts = url.split('/')
-            const fileName = urlParts[urlParts.length - 1]
+            const fileName = extractFileNameFromUrl(url)
             if (fileName) {
               usedFileNames.add(fileName)
             }
@@ -218,7 +321,7 @@ export async function cleanupOrphanedImages(): Promise<{
     
     // Find orphaned files (files in storage but not in database)
     const orphanedFiles = files.filter(file => 
-      file.name && !usedFileNames.has(file.name)
+      file.name && !usedFileNames.has(file.name) && file.name !== '.emptyFolderPlaceholder'
     )
     
     if (orphanedFiles.length === 0) {
@@ -227,7 +330,7 @@ export async function cleanupOrphanedImages(): Promise<{
     
     // Delete orphaned files
     const filePaths = orphanedFiles.map(file => `makanan/${file.name}`)
-    const { error: deleteError } = await supabase.storage
+    const { error: deleteError } = await serviceRoleClient.storage
       .from(config.supabase.bucketName)
       .remove(filePaths)
     

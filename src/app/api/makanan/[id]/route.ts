@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
-import { deleteImageFromStorage } from '@/lib/supabase-storage'
+import { deleteImageFromStorage, extractFileNameFromUrl } from '@/lib/supabase-storage'
 
 export async function GET(
   request: NextRequest,
@@ -180,27 +180,41 @@ export async function DELETE(
     // Delete images from storage before deleting the database record
     if (fotoUrls.length > 0) {
       console.log(`Deleting ${fotoUrls.length} images from storage for makanan ID: ${makananId}`)
+      console.log('Foto URLs to delete:', fotoUrls)
       
       const deletePromises = fotoUrls.map(async (url) => {
         try {
-          // Extract file path from URL
-          const urlParts = url.split('/')
-          const fileName = urlParts[urlParts.length - 1]
+          if (!url || typeof url !== 'string') {
+            console.warn('Invalid URL:', url)
+            return
+          }
+          
+          // Use the robust helper function to extract filename
+          const fileName = extractFileNameFromUrl(url)
+          
+          if (!fileName) {
+            console.warn('Could not extract filename from URL:', url)
+            return
+          }
+          
           const filePath = `makanan/${fileName}`
+          console.log(`Attempting to delete: ${filePath} (from URL: ${url})`)
           
           const deleted = await deleteImageFromStorage(filePath)
           if (deleted) {
-            console.log(`Successfully deleted image: ${filePath}`)
+            console.log(`✅ Successfully deleted image: ${filePath}`)
           } else {
-            console.warn(`Failed to delete image: ${filePath}`)
+            console.warn(`❌ Failed to delete image: ${filePath}`)
           }
         } catch (error) {
-          console.error(`Error deleting image ${url}:`, error)
+          console.error(`❌ Error deleting image ${url}:`, error)
         }
       })
       
       // Wait for all image deletions to complete
       await Promise.all(deletePromises)
+    } else {
+      console.log('No foto URLs found to delete')
     }
 
     // Delete makanan from database
