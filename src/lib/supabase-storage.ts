@@ -101,7 +101,6 @@ export async function deleteImageFromStorage(filePath: string): Promise<boolean>
       console.error('❌ Delete error:', error)
       console.error('Error details:', {
         message: error.message,
-        statusCode: error.statusCode,
         filePath: filePath,
         bucketName: config.supabase.bucketName
       })
