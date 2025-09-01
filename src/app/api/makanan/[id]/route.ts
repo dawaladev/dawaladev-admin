@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
+import { deleteImageFromStorage } from '@/lib/supabase-storage'
 
 export async function GET(
   request: NextRequest,
@@ -166,7 +167,43 @@ export async function DELETE(
       return NextResponse.json({ error: 'Makanan not found' }, { status: 404 })
     }
 
-    // Delete makanan
+    // Parse foto URLs from the existing makanan
+    let fotoUrls: string[] = []
+    try {
+      fotoUrls = Array.isArray(existingMakanan.foto) 
+        ? existingMakanan.foto 
+        : JSON.parse(existingMakanan.foto || '[]')
+    } catch (error) {
+      console.error('Error parsing foto URLs:', error)
+    }
+
+    // Delete images from storage before deleting the database record
+    if (fotoUrls.length > 0) {
+      console.log(`Deleting ${fotoUrls.length} images from storage for makanan ID: ${makananId}`)
+      
+      const deletePromises = fotoUrls.map(async (url) => {
+        try {
+          // Extract file path from URL
+          const urlParts = url.split('/')
+          const fileName = urlParts[urlParts.length - 1]
+          const filePath = `makanan/${fileName}`
+          
+          const deleted = await deleteImageFromStorage(filePath)
+          if (deleted) {
+            console.log(`Successfully deleted image: ${filePath}`)
+          } else {
+            console.warn(`Failed to delete image: ${filePath}`)
+          }
+        } catch (error) {
+          console.error(`Error deleting image ${url}:`, error)
+        }
+      })
+      
+      // Wait for all image deletions to complete
+      await Promise.all(deletePromises)
+    }
+
+    // Delete makanan from database
     await prisma.makanan.delete({
       where: { id: makananId }
     })

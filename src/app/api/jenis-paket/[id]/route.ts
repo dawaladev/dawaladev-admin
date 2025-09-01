@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { withPrisma } from '@/lib/prisma'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
+import { deleteImageFromStorage } from '@/lib/supabase-storage'
 
 export async function GET(
   request: NextRequest,
@@ -111,11 +112,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
     }
 
-    // Check if jenis paket has associated makanan
+    // Check if jenis paket has associated makanan and get their images
     const jenisPaket = await withPrisma(async (prisma) => {
       return await prisma.jenisPaket.findUnique({
         where: { id },
         include: {
+          makanan: {
+            select: {
+              id: true,
+              foto: true
+            }
+          },
           _count: {
             select: {
               makanan: true
@@ -136,6 +143,54 @@ export async function DELETE(
       )
     }
 
+    // Delete images from storage for all associated makanan before deleting jenis paket
+    if (jenisPaket.makanan.length > 0) {
+      console.log(`Deleting images for ${jenisPaket.makanan.length} makanan in jenis paket ID: ${id}`)
+      
+      const allImageDeletePromises: Promise<void>[] = []
+      
+      jenisPaket.makanan.forEach((makanan) => {
+        try {
+          // Parse foto URLs from each makanan
+          let fotoUrls: string[] = []
+          if (makanan.foto) {
+            fotoUrls = Array.isArray(makanan.foto) 
+              ? makanan.foto 
+              : JSON.parse(makanan.foto || '[]')
+          }
+          
+          // Create delete promises for each image
+          fotoUrls.forEach((url) => {
+            const deletePromise = (async () => {
+              try {
+                // Extract file path from URL
+                const urlParts = url.split('/')
+                const fileName = urlParts[urlParts.length - 1]
+                const filePath = `makanan/${fileName}`
+                
+                const deleted = await deleteImageFromStorage(filePath)
+                if (deleted) {
+                  console.log(`Successfully deleted image: ${filePath}`)
+                } else {
+                  console.warn(`Failed to delete image: ${filePath}`)
+                }
+              } catch (error) {
+                console.error(`Error deleting image ${url}:`, error)
+              }
+            })()
+            
+            allImageDeletePromises.push(deletePromise)
+          })
+        } catch (error) {
+          console.error(`Error parsing foto for makanan ID ${makanan.id}:`, error)
+        }
+      })
+      
+      // Wait for all image deletions to complete
+      await Promise.all(allImageDeletePromises)
+    }
+
+    // Delete jenis paket from database (this will cascade delete all associated makanan)
     await withPrisma(async (prisma) => {
       await prisma.jenisPaket.delete({
         where: { id }

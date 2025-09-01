@@ -165,3 +165,96 @@ export async function uploadImageToStorageWithServiceRole(
     }
   }
 }
+
+export async function cleanupOrphanedImages(): Promise<{
+  deletedFiles: string[]
+  errors: string[]
+  totalDeleted: number
+}> {
+  try {
+    const supabase = await createServerSupabaseClient()
+    
+    // Get all files in the makanan folder
+    const { data: files, error: listError } = await supabase.storage
+      .from(config.supabase.bucketName)
+      .list('makanan')
+    
+    if (listError) {
+      console.error('Error listing files:', listError)
+      return { deletedFiles: [], errors: [listError.message], totalDeleted: 0 }
+    }
+    
+    if (!files || files.length === 0) {
+      return { deletedFiles: [], errors: [], totalDeleted: 0 }
+    }
+    
+    // Get all foto URLs from database
+    const { prisma } = await import('@/lib/prisma')
+    const allMakanan = await prisma.makanan.findMany({
+      select: { foto: true }
+    })
+    
+    // Extract all file names from database
+    const usedFileNames = new Set<string>()
+    allMakanan.forEach(makanan => {
+      try {
+        const fotoUrls = Array.isArray(makanan.foto) 
+          ? makanan.foto 
+          : JSON.parse(makanan.foto || '[]')
+        
+        fotoUrls.forEach((url: string) => {
+          if (url && typeof url === 'string') {
+            const urlParts = url.split('/')
+            const fileName = urlParts[urlParts.length - 1]
+            if (fileName) {
+              usedFileNames.add(fileName)
+            }
+          }
+        })
+      } catch (error) {
+        console.error('Error parsing foto:', error)
+      }
+    })
+    
+    // Find orphaned files (files in storage but not in database)
+    const orphanedFiles = files.filter(file => 
+      file.name && !usedFileNames.has(file.name)
+    )
+    
+    if (orphanedFiles.length === 0) {
+      return { deletedFiles: [], errors: [], totalDeleted: 0 }
+    }
+    
+    // Delete orphaned files
+    const filePaths = orphanedFiles.map(file => `makanan/${file.name}`)
+    const { error: deleteError } = await supabase.storage
+      .from(config.supabase.bucketName)
+      .remove(filePaths)
+    
+    if (deleteError) {
+      console.error('Error deleting orphaned files:', deleteError)
+      return { 
+        deletedFiles: [], 
+        errors: [deleteError.message], 
+        totalDeleted: 0 
+      }
+    }
+    
+    const deletedFileNames = orphanedFiles.map(file => file.name).filter(Boolean)
+    console.log(`Successfully deleted ${deletedFileNames.length} orphaned files:`, deletedFileNames)
+    
+    return {
+      deletedFiles: deletedFileNames,
+      errors: [],
+      totalDeleted: deletedFileNames.length
+    }
+    
+  } catch (error) {
+    console.error('Storage cleanup error:', error)
+    return {
+      deletedFiles: [],
+      errors: [error instanceof Error ? error.message : 'Unknown error'],
+      totalDeleted: 0
+    }
+  }
+}
