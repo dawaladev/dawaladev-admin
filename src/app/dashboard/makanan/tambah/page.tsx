@@ -145,12 +145,38 @@ export default function TambahMakananPage() {
         body: formData,
       })
 
+      const contentType = response.headers.get('content-type') || ''
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Upload failed')
+        // Try to parse JSON, fallback to text (e.g., 413 Request Entity Too Large)
+        let message = 'Upload failed'
+        if (contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json()
+            message = errorData.error || errorData.message || message
+          } catch {
+            // ignore JSON parse error
+          }
+        } else {
+          try {
+            const text = await response.text()
+            if (text) {
+              message = text
+            }
+          } catch {
+            // ignore text read error
+          }
+        }
+
+        if (response.status === 413 || message.toLowerCase().includes('request entity too large')) {
+          message = 'Ukuran file terlalu besar untuk diunggah. Coba perkecil ukuran gambar.'
+        }
+
+        throw new Error(message)
       }
 
-      const data = await response.json()
+      // Success path: ensure JSON parsing only when correct content type
+      const data = contentType.includes('application/json') ? await response.json() : { files: [] }
       const newImageUrls = data.files.map((file: { url: string }) => file.url)
       const newImages = [...uploadedImages, ...newImageUrls]
       setUploadedImages(newImages)

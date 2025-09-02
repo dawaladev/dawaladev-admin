@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+export const runtime = 'nodejs'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { uploadMultipleImagesWithServiceRole } from '@/lib/supabase-storage'
 import { checkStorageStatus } from '@/lib/storage-status'
