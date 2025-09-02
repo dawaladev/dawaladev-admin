@@ -34,7 +34,7 @@ interface JenisPaket {
 export default function MakananPage() {
   const [makanan, setMakanan] = useState<Makanan[]>([])
   const [jenisPaket, setJenisPaket] = useState<JenisPaket[]>([])
-  const [, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true)
   const [deleteLoading, setDeleteLoading] = useState<number | null>(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -340,7 +340,24 @@ export default function MakananPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredJenisPaket.length === 0 ? (
+                  {loading ? (
+                    Array.from({ length: 4 }).map((_, idx) => (
+                      <tr key={idx} className="border-t border-gray-100">
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-40 bg-gray-200 rounded animate-pulse"></div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-5 w-16 bg-gray-200 rounded-full animate-pulse"></div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex space-x-2">
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : filteredJenisPaket.length === 0 ? (
                     <tr>
                       <td colSpan={3} className="text-center py-8 text-gray-500">
                         <Package className="h-8 w-8 mx-auto mb-2 text-gray-300" />
@@ -445,7 +462,33 @@ export default function MakananPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMakanan.length === 0 ? (
+                  {loading ? (
+                    Array.from({ length: 6 }).map((_, idx) => (
+                      <tr key={idx} className="border-t border-gray-100">
+                        <td className="px-4 py-3">
+                          <div className="h-12 w-12 bg-gray-200 rounded-lg animate-pulse"></div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="space-y-2">
+                            <div className="h-4 w-48 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-3 w-64 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-6 w-24 bg-gray-200 rounded-full animate-pulse"></div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex space-x-2">
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse"></div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : filteredMakanan.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="text-center py-8 text-gray-500">
                         <Utensils className="h-8 w-8 mx-auto mb-2 text-gray-300" />

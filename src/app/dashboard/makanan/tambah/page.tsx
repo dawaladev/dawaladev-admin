@@ -30,7 +30,8 @@ interface JenisPaket {
 
 export default function TambahMakananPage() {
   const [jenisPaketList, setJenisPaketList] = useState<JenisPaket[]>([])
-  const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const [previewImages, setPreviewImages] = useState<string[]>([])
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const [descriptionLength, setDescriptionLength] = useState(0)
@@ -107,107 +108,78 @@ export default function TambahMakananPage() {
   }
 
   const handleFileUpload = async (files: FileList) => {
-    setIsUploading(true)
     setUploadError(null)
-    
-    try {
-      // Validate files
-      const fileArray = Array.from(files)
-      const validFiles = fileArray.filter(file => {
-        const isValidType = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)
-        const isValidSize = file.size <= 5 * 1024 * 1024 // 5MB limit
-        
-        if (!isValidType) {
-          setUploadError(`File ${file.name} bukan format gambar yang valid`)
-          return false
-        }
-        
-        if (!isValidSize) {
-          setUploadError(`File ${file.name} terlalu besar (maksimal 5MB)`)
-          return false
-        }
-        
-        return true
-      })
-
-      if (validFiles.length === 0) {
-        setIsUploading(false)
-        return
+    const fileArray = Array.from(files)
+    const validFiles = fileArray.filter(file => {
+      const isValidType = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)
+      const isValidSize = file.size <= 5 * 1024 * 1024 // 5MB limit
+      if (!isValidType) {
+        setUploadError(`File ${file.name} bukan format gambar yang valid`)
+        return false
       }
-
-      const formData = new FormData()
-      validFiles.forEach(file => {
-        formData.append('files', file)
-      })
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const contentType = response.headers.get('content-type') || ''
-
-      if (!response.ok) {
-        // Try to parse JSON, fallback to text (e.g., 413 Request Entity Too Large)
-        let message = 'Upload failed'
-        if (contentType.includes('application/json')) {
-          try {
-            const errorData = await response.json()
-            message = errorData.error || errorData.message || message
-          } catch {
-            // ignore JSON parse error
-          }
-        } else {
-          try {
-            const text = await response.text()
-            if (text) {
-              message = text
-            }
-          } catch {
-            // ignore text read error
-          }
-        }
-
-        if (response.status === 413 || message.toLowerCase().includes('request entity too large')) {
-          message = 'Ukuran file terlalu besar untuk diunggah. Coba perkecil ukuran gambar.'
-        }
-
-        throw new Error(message)
+      if (!isValidSize) {
+        setUploadError(`File ${file.name} terlalu besar (maksimal 5MB)`)
+        return false
       }
+      return true
+    })
 
-      // Success path: ensure JSON parsing only when correct content type
-      const data = contentType.includes('application/json') ? await response.json() : { files: [] }
-      const newImageUrls = data.files.map((file: { url: string }) => file.url)
-      const newImages = [...uploadedImages, ...newImageUrls]
-      setUploadedImages(newImages)
-      setValue('foto', newImages)
-      
-      // Show success message
-      console.log(`Berhasil upload ${data.files.length} foto`)
-      
-    } catch (error) {
-      console.error('Upload error:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Gagal upload foto. Silakan coba lagi.'
-      setUploadError(errorMessage)
-      
-      // If it's a storage bucket error, show generic error
-      if (errorMessage.includes('bucket') || errorMessage.includes('Storage bucket not configured')) {
-        setUploadError('Gagal mengupload foto. Silakan coba lagi.')
-      }
-    } finally {
-      setIsUploading(false)
-    }
+    if (validFiles.length === 0) return
+
+    const updatedFiles = [...selectedFiles, ...validFiles]
+    const newPreviews = validFiles.map(file => URL.createObjectURL(file))
+    setSelectedFiles(updatedFiles)
+    setPreviewImages(prev => [...prev, ...newPreviews])
+    setValue('foto', [...previewImages, ...newPreviews])
   }
 
   const removeImage = (index: number) => {
-    const newImages = uploadedImages.filter((_, i) => i !== index)
-    setUploadedImages(newImages)
-    setValue('foto', newImages)
+    const newPreviews = previewImages.filter((_, i) => i !== index)
+    const newFiles = selectedFiles.filter((_, i) => i !== index)
+    setPreviewImages(newPreviews)
+    setSelectedFiles(newFiles)
+    setValue('foto', newPreviews)
   }
 
   const onSubmit = async (data: MakananFormData) => {
     try {
-      const response = await fetch('/api/makanan', {
+      setIsUploading(true)
+
+      let uploadedUrls: string[] = []
+      if (selectedFiles.length > 0) {
+        const formData = new FormData()
+        selectedFiles.forEach(file => formData.append('files', file))
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
+
+        const contentType = response.headers.get('content-type') || ''
+        if (!response.ok) {
+          let message = 'Upload gagal'
+          if (contentType.includes('application/json')) {
+            try {
+              const err = await response.json()
+              message = err.error || err.message || message
+            } catch {}
+          } else {
+            try {
+              const text = await response.text()
+              if (text) message = text
+            } catch {}
+          }
+          if (response.status === 413 || message.toLowerCase().includes('request entity too large')) {
+            message = 'Ukuran file terlalu besar untuk diunggah. Coba perkecil ukuran gambar.'
+          }
+          throw new Error(message)
+        }
+
+        const dataUpload = contentType.includes('application/json') ? await response.json() : { files: [] }
+        uploadedUrls = dataUpload.files.map((f: { url: string }) => f.url)
+      }
+
+      const saveResponse = await fetch('/api/makanan', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -216,29 +188,28 @@ export default function TambahMakananPage() {
           namaMakanan: data.namaMakanan,
           deskripsi: data.deskripsi,
           deskripsiEn: deskripsiEn,
-          foto: uploadedImages,
+          foto: uploadedUrls,
           harga: data.harga,
           jenisPaketId: data.jenisPaketId,
         }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json()
+      if (!saveResponse.ok) {
+        const errorData = await saveResponse.json()
         throw new Error(errorData.message || 'Terjadi kesalahan')
       }
 
-      // Show success notification
       showToast('Menu berhasil disimpan!', 'success')
-      
-      // Wait a bit before redirecting
       setTimeout(() => {
         router.push('/dashboard/makanan')
       }, 1500)
-      
+
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Terjadi kesalahan'
       setError('root', { message: errorMessage })
       showToast(`❌ ${errorMessage}`, 'error')
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -452,17 +423,10 @@ export default function TambahMakananPage() {
                         disabled={isUploading}
                         className="bg-green-600 hover:bg-green-700 text-white border-green-600 h-12 px-6"
                       >
-                        {isUploading ? (
-                          <>
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Uploading...
-                          </>
-                        ) : (
-                          <>
-                            <Upload className="h-4 w-4 mr-2" />
-                            Upload Foto Menu
-                          </>
-                        )}
+                        <>
+                          <Upload className="h-4 w-4 mr-2" />
+                          Pilih Foto Menu
+                        </>
                       </Button>
                     </div>
                     <p className="text-sm text-gray-500">
@@ -492,13 +456,13 @@ export default function TambahMakananPage() {
               </div>
 
               {/* Image Preview */}
-              {uploadedImages.length > 0 && (
+              {previewImages.length > 0 && (
                 <div>
                   <Label className="text-sm font-semibold text-gray-700 mb-4 block">
-                    Preview Foto ({uploadedImages.length} foto)
+                    Preview Foto ({previewImages.length} foto)
                   </Label>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {uploadedImages.map((url, index) => (
+                    {previewImages.map((url, index) => (
                       <div key={index} className="relative group">
                         <div className="aspect-square rounded-xl overflow-hidden border-2 border-gray-200 hover:border-green-400 transition-colors">
                           <Image
@@ -523,9 +487,6 @@ export default function TambahMakananPage() {
                         </button>
                         <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
                           {index + 1}
-                        </div>
-                        <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                          ✓ Uploaded
                         </div>
                       </div>
                     ))}
