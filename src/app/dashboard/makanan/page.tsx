@@ -511,7 +511,7 @@ export default function MakananPage() {
                   ) : filteredMakanan.length === 0 ? (
                     <tr>
                       <td colSpan={5} className="text-center py-8 text-gray-500">
-                        <Utensils className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                        <Package className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                         <p>{searchMakanan ? 'Tidak ada paket yang cocok' : 'Belum ada paket gastronomi'}</p>
                       </td>
                     </tr>
