@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { ArrowLeft, Utensils, Upload, X, Plus, Camera, AlertCircle, Languages } from 'lucide-react'
+import { ArrowLeft, Package, Upload, X, Plus, Camera, AlertCircle, Languages } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { makananSchema, type MakananFormData } from '@/lib/validations'
@@ -115,13 +115,13 @@ export default function TambahMakananPage() {
     const fileArray = Array.from(files)
     const validFiles = fileArray.filter(file => {
       const isValidType = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)
-      const isValidSize = file.size <= 15 * 4096 * 4096 // 15MB limit
+      const isValidSize = file.size <= 50 * 4096 * 4096 // 50MB limit
       if (!isValidType) {
         setUploadError(`File ${file.name} bukan format gambar yang valid`)
         return false
       }
       if (!isValidSize) {
-        setUploadError(`File ${file.name} terlalu besar (maksimal 15MB)`)
+        setUploadError(`File ${file.name} terlalu besar (maksimal 50MB)`)
         return false
       }
       return true
@@ -173,7 +173,7 @@ export default function TambahMakananPage() {
             } catch {}
           }
           if (response.status === 413 || message.toLowerCase().includes('request entity too large')) {
-            message = 'Ukuran file terlalu besar untuk diunggah. Coba perkecil ukuran gambar. (Maksimal 15MB)'
+            message = 'Ukuran file terlalu besar untuk diunggah. Coba perkecil ukuran gambar. (Maksimal 50MB)'
           }
           throw new Error(message)
         }
@@ -246,7 +246,7 @@ export default function TambahMakananPage() {
           {/* Form Header */}
           <div className="flex items-center gap-3 mb-8 pb-6 border-b border-gray-100">
             <div className="p-3 bg-green-100 rounded-xl">
-              <Utensils className="h-8 w-8 text-green-600" />
+              <Package className="h-8 w-8 text-green-600" />
             </div>
             <div>
               <h2 className="text-2xl font-bold text-green-700">Form Paket Gastronomi</h2>
@@ -265,7 +265,7 @@ export default function TambahMakananPage() {
                   id="namaMakanan"
                   type="text"
                   {...register('namaMakanan')}
-                  placeholder="Contoh: Nasi Goreng Spesial"
+                  placeholder="Contoh: Paket Alamendah Trip"
                   className={`h-12 text-base ${errors.namaMakanan ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-green-500'}`}
                 />
                 {errors.namaMakanan && (
@@ -436,7 +436,7 @@ export default function TambahMakananPage() {
                       Klik untuk memilih foto atau drag & drop file gambar
                     </p>
                     <p className="text-xs text-gray-400">
-                      Format: JPG, PNG, GIF, WebP • Maksimal 15MB per file • Tidak ada batasan jumlah foto
+                      Format: JPG, PNG, GIF, WebP • Maksimal 50MB per file • Tidak ada batasan jumlah foto
                     </p>
                   </div>
                 </div>
