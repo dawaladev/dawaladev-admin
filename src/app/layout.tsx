@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   title: "Dawala - Admin",
   description: "Gastronomi Management System Desa Wisata Alamendah",
   icons: {
-    icon: "/Dawala.png", // Hapus "public" dari path karena Next.js secara otomatis mencari di folder public
+    icon: "/favicon.ico", // Hapus "public" dari path karena Next.js secara otomatis mencari di folder public
   },
 };
 

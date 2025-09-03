@@ -24,7 +24,7 @@ export default function AuthLayout({ children, title }: AuthLayoutProps) {
         <div className="bg-white/70 backdrop-blur-2xl rounded-3xl shadow-2xl p-8  shadow-black/10 hover:shadow-3xl transition-all duration-300">
           {/* Logo */}
           <div className="flex justify-center mb-6">
-            <Image src="/Dawala.png" alt="Dawala Logo" width={96} height={96} className="h-24 w-auto" />
+            <Image src="/Dawala.png" alt="Dawala Logo" width={120} height={120} className="h-36 w-auto" />
           </div>
           <div className="flex justify-center mb-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-2 drop-shadow-sm">
