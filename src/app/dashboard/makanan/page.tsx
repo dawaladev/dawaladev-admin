@@ -10,6 +10,7 @@ import { Plus, Edit, Trash2, Utensils, Package, Search } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { MultiLangText } from '@/components/MultiLangText'
+import { translateText } from '@/lib/translate'
 
 // Force dynamic rendering for this page since it uses cookies for authentication
 export const dynamic = 'force-dynamic'
@@ -162,12 +163,20 @@ export default function MakananPage() {
     setModalLoading(true)
     
     try {
+      // Auto-translate Indonesian name to English before saving
+      let namaPaketEn: string | undefined
+      try {
+        namaPaketEn = await translateText(namaPaket.trim(), 'en')
+      } catch (translateError) {
+        console.warn('Auto-translate failed, continuing without English name:', translateError)
+      }
+
       const response = await fetch('/api/jenis-paket', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ namaPaket: namaPaket.trim() }),
+        body: JSON.stringify({ namaPaket: namaPaket.trim(), namaPaketEn }),
       })
 
       if (!response.ok) {
@@ -195,12 +204,20 @@ export default function MakananPage() {
     setModalLoading(true)
     
     try {
+      // Auto-translate updated name to English
+      let namaPaketEn: string | undefined
+      try {
+        namaPaketEn = await translateText(namaPaket.trim(), 'en')
+      } catch (translateError) {
+        console.warn('Auto-translate failed, continuing without English name:', translateError)
+      }
+
       const response = await fetch(`/api/jenis-paket/${editingPaket.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ namaPaket: namaPaket.trim() }),
+        body: JSON.stringify({ namaPaket: namaPaket.trim(), namaPaketEn }),
       })
 
       if (!response.ok) {
