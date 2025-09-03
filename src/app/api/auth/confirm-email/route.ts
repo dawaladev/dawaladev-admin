@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { prisma } from '@/lib/prisma'
+import { getSiteUrl } from '@/lib/config'
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
+  const siteUrl = getSiteUrl()
   const code = searchParams.get('code')
   const type = searchParams.get('type')
   const error = searchParams.get('error')
@@ -20,12 +22,12 @@ export async function GET(request: NextRequest) {
   // Handle error cases from Supabase
   if (error) {
     console.error('Email confirmation error from Supabase:', { error, errorDescription })
-    return NextResponse.redirect(`${origin}/auth/login?message=Email confirmation failed: ${errorDescription || error}`)
+    return NextResponse.redirect(`${siteUrl}/auth/login?message=Email confirmation failed: ${errorDescription || error}`)
   }
 
   if (!code) {
     console.log('No code provided')
-    return NextResponse.redirect(`${origin}/auth/login?message=Invalid confirmation link`)
+    return NextResponse.redirect(`${siteUrl}/auth/login?message=Invalid confirmation link`)
   }
 
   // Check if this is a password recovery request
@@ -38,17 +40,17 @@ export async function GET(request: NextRequest) {
       
       if (error) {
         console.error('Error exchanging recovery code for session:', error)
-        return NextResponse.redirect(`${origin}/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa`)
+        return NextResponse.redirect(`${siteUrl}/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa`)
       }
       
       if (data.session) {
         console.log('Recovery session established for user:', data.user?.email)
         // Redirect to reset password page with session established
-        return NextResponse.redirect(`${origin}/auth/reset-password`)
+        return NextResponse.redirect(`${siteUrl}/auth/reset-password`)
       }
     } catch (recoveryError) {
       console.error('Error in password recovery:', recoveryError)
-      return NextResponse.redirect(`${origin}/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa`)
+      return NextResponse.redirect(`${siteUrl}/auth/login?message=Link reset password tidak valid atau sudah kadaluarsa`)
     }
   }
 
@@ -78,12 +80,12 @@ export async function GET(request: NextRequest) {
 
     if (verifyError) {
       console.error('Email confirmation error:', verifyError)
-      return NextResponse.redirect(`${origin}/auth/login?message=Email confirmation failed: ${verifyError.message}`)
+      return NextResponse.redirect(`${siteUrl}/auth/login?message=Email confirmation failed: ${verifyError.message}`)
     }
 
     if (!data || !data.user) {
       console.error('No user data returned from verification')
-      return NextResponse.redirect(`${origin}/auth/login?message=Email confirmation failed: No user data`)
+      return NextResponse.redirect(`${siteUrl}/auth/login?message=Email confirmation failed: No user data`)
     }
 
     console.log('Email confirmed for user:', data.user.email)
@@ -95,7 +97,7 @@ export async function GET(request: NextRequest) {
 
     if (existingUser) {
       console.log('User already exists in users table:', existingUser.email)
-      return NextResponse.redirect(`${origin}/auth/login?message=Email confirmed! Please wait for Super Admin approval.`)
+      return NextResponse.redirect(`${siteUrl}/auth/login?message=Email confirmed! Please wait for Super Admin approval.`)
     }
 
     // Check if user already exists in pending_users table
@@ -105,7 +107,7 @@ export async function GET(request: NextRequest) {
 
     if (existingPendingUser) {
       console.log('User already exists in pending_users table:', existingPendingUser.email)
-      return NextResponse.redirect(`${origin}/auth/login?message=Email confirmed! Please wait for Super Admin approval.`)
+      return NextResponse.redirect(`${siteUrl}/auth/login?message=Email confirmed! Please wait for Super Admin approval.`)
     }
 
     // Create new pending user
@@ -121,14 +123,14 @@ export async function GET(request: NextRequest) {
       })
 
       console.log('New pending user created successfully:', pendingUser.email)
-      return NextResponse.redirect(`${origin}/auth/login?message=Email confirmed! Please wait for Super Admin approval.`)
+      return NextResponse.redirect(`${siteUrl}/auth/login?message=Email confirmed! Please wait for Super Admin approval.`)
     } catch (dbError) {
       console.error('Database error creating pending user:', dbError)
-      return NextResponse.redirect(`${origin}/auth/login?message=Email confirmed but database error occurred. Please contact admin.`)
+      return NextResponse.redirect(`${siteUrl}/auth/login?message=Email confirmed but database error occurred. Please contact admin.`)
     }
 
   } catch (error) {
     console.error('Unexpected error in email confirmation:', error)
-    return NextResponse.redirect(`${origin}/auth/login?message=Email confirmation failed. Please try again.`)
+    return NextResponse.redirect(`${siteUrl}/auth/login?message=Email confirmation failed. Please try again.`)
   }
 } 
