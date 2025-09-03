@@ -113,7 +113,7 @@ export default function MakananPage() {
     const menuCount = makanan.filter(m => m.jenisPaketId === id).length
     
     if (menuCount > 0) {
-      alert(`⚠️ Jenis paket "${name}" memiliki ${menuCount} menu yang terkait. Anda tidak dapat menghapus jenis paket yang masih memiliki menu.`)
+      alert(`⚠️ Kategori paket "${name}" memiliki ${menuCount} paket yang terkait. Anda tidak dapat menghapus kategori paket yang masih memiliki paket.`)
       return
     }
 
@@ -176,7 +176,7 @@ export default function MakananPage() {
       setNamaPaket('')
       fetchData()
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat menambah jenis paket')
+      alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat menambah kategori paket')
     } finally {
       setModalLoading(false)
     }
@@ -210,7 +210,7 @@ export default function MakananPage() {
       setNamaPaket('')
       fetchData()
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat mengubah jenis paket')
+      alert(error instanceof Error ? error.message : 'Terjadi kesalahan saat mengubah kategori paket')
     } finally {
       setModalLoading(false)
     }
@@ -287,7 +287,7 @@ export default function MakananPage() {
     <div className="p-6 lg:p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Kelola Gastronomi</h1>
-        <p className="text-gray-600">Kelola menu makanan dan jenis paket gastronomi.</p>
+        <p className="text-gray-600">Kelola kategori paket dan paket gastronomi.</p>
       </div>
 
 
@@ -302,8 +302,8 @@ export default function MakananPage() {
                   <Package className="h-5 w-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-blue-900">Jenis Paket</h3>
-                  <p className="text-sm text-blue-600">Kategori menu</p>
+                  <h3 className="font-semibold text-blue-900">Kategori Paket</h3>
+                  <p className="text-sm text-blue-600">Kategori untuk Paket Gastronomi</p>
                 </div>
               </div>
               <span className="bg-blue-200 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">
@@ -315,7 +315,7 @@ export default function MakananPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Cari jenis paket..."
+                  placeholder="Cari kategori paket..."
                   value={searchJenisPaket}
                   onChange={(e) => setSearchJenisPaket(e.target.value)}
                   className="pl-10 text-sm"
@@ -327,15 +327,15 @@ export default function MakananPage() {
                 onClick={() => setShowAddModal(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Tambah Paket
+                Tambah Kategori
               </Button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-blue-50">
                   <tr>
-                    <th className="px-4 py-3 text-left font-medium text-blue-700">Nama Paket</th>
-                    <th className="px-4 py-3 text-left font-medium text-blue-700">Menu</th>
+                    <th className="px-4 py-3 text-left font-medium text-blue-700">Nama Kategori</th>
+                    <th className="px-4 py-3 text-left font-medium text-blue-700">Paket</th>
                     <th className="px-4 py-3 text-left font-medium text-blue-700">Aksi</th>
                   </tr>
                 </thead>
@@ -361,7 +361,7 @@ export default function MakananPage() {
                     <tr>
                       <td colSpan={3} className="text-center py-8 text-gray-500">
                         <Package className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                        <p>{searchJenisPaket ? 'Tidak ada jenis paket yang cocok' : 'Belum ada jenis paket'}</p>
+                        <p>{searchJenisPaket ? 'Tidak ada kategori paket yang cocok' : 'Belum ada kategori paket'}</p>
                       </td>
                     </tr>
                   ) : (
@@ -374,7 +374,7 @@ export default function MakananPage() {
                           </td>
                           <td className="px-4 py-3">
                             <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
-                              {menuCount} menu
+                              {menuCount} paket
                             </span>
                           </td>
                           <td className="px-4 py-3">
@@ -421,12 +421,12 @@ export default function MakananPage() {
                   <Utensils className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-green-900">Menu Makanan</h3>
-                  <p className="text-sm text-green-600">Daftar menu gastronomi</p>
+                  <h3 className="font-semibold text-green-900">Paket Gastronomi</h3>
+                  <p className="text-sm text-green-600">Daftar paket gastronomi</p>
                 </div>
               </div>
               <span className="bg-green-200 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
-                {makananWithImages.length} menu
+                {makananWithImages.length} paket
               </span>
             </div>
             <div className="px-6 py-4 border-b border-green-100 space-y-3">
@@ -434,7 +434,7 @@ export default function MakananPage() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   type="text"
-                  placeholder="Cari menu makanan..."
+                  placeholder="Cari paket gastronomi..."
                   value={searchMakanan}
                   onChange={(e) => setSearchMakanan(e.target.value)}
                   className="pl-10 text-sm"
@@ -446,7 +446,7 @@ export default function MakananPage() {
                   className="bg-green-600 hover:bg-green-700 text-white w-full"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Tambah Menu
+                  Tambah Paket
                 </Button>
               </Link>
             </div>
@@ -455,8 +455,8 @@ export default function MakananPage() {
                 <thead className="bg-green-50">
                   <tr>
                     <th className="px-4 py-3 text-left font-medium text-green-700 w-16">Foto</th>
-                    <th className="px-4 py-3 text-left font-medium text-green-700">Nama Menu</th>
-                    <th className="px-4 py-3 text-left font-medium text-green-700 w-40">Jenis</th>
+                    <th className="px-4 py-3 text-left font-medium text-green-700">Nama Paket</th>
+                    <th className="px-4 py-3 text-left font-medium text-green-700 w-40">Kategori</th>
                     <th className="px-4 py-3 text-left font-medium text-green-700 w-28">Harga</th>
                     <th className="px-4 py-3 text-left font-medium text-green-700 w-20">Aksi</th>
                   </tr>
@@ -492,7 +492,7 @@ export default function MakananPage() {
                     <tr>
                       <td colSpan={5} className="text-center py-8 text-gray-500">
                         <Utensils className="h-8 w-8 mx-auto mb-2 text-gray-300" />
-                        <p>{searchMakanan ? 'Tidak ada menu yang cocok' : 'Belum ada menu makanan'}</p>
+                        <p>{searchMakanan ? 'Tidak ada paket yang cocok' : 'Belum ada paket gastronomi'}</p>
                       </td>
                     </tr>
                   ) : (
@@ -581,8 +581,8 @@ export default function MakananPage() {
         <div className="space-y-6">
           {/* Header with Icon */}
           <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Tambah Jenis Paket Baru</h3>
-            <p className="text-sm text-gray-500">Isi informasi jenis paket yang akan ditambahkan</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Tambah Kategori Paket Baru</h3>
+            <p className="text-sm text-gray-500">Isi informasi kategori paket yang akan ditambahkan</p>
           </div>
 
           <form onSubmit={handleAddJenisPaket} className="space-y-6">
@@ -590,7 +590,7 @@ export default function MakananPage() {
             <div className="space-y-2">
               <Label htmlFor="addNamaPaket" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                 <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                Nama Paket
+                Nama Kategori Paket
               </Label>
               <div className="relative">
                 <Input
@@ -598,7 +598,7 @@ export default function MakananPage() {
                   type="text"
                   value={namaPaket}
                   onChange={(e) => setNamaPaket(e.target.value)}
-                  placeholder="Masukkan nama paket"
+                  placeholder="Masukkan nama kategoripaket"
                   required
                   className="h-11 pl-4 pr-4 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                 />
@@ -628,7 +628,7 @@ export default function MakananPage() {
                 ) : (
                   <div className="flex items-center gap-2">
                     <Plus className="h-4 w-4" />
-                    Tambah Paket
+                    Tambah Kategori
                   </div>
                 )}
               </Button>
@@ -641,13 +641,13 @@ export default function MakananPage() {
       <Modal
         isOpen={showEditModal}
         onClose={closeModal}
-        title="Edit Jenis Paket"
+        title="Edit Kategori Paket"
       >
         <div className="space-y-6">
           {/* Header with Icon */}
           <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Edit Jenis Paket</h3>
-            <p className="text-sm text-gray-500">Ubah informasi jenis paket yang dipilih</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Edit Kategori Paket</h3>
+            <p className="text-sm text-gray-500">Ubah informasi kategori paket yang dipilih</p>
           </div>
 
           <form onSubmit={handleEditJenisPaket} className="space-y-6">
@@ -655,7 +655,7 @@ export default function MakananPage() {
             <div className="space-y-2">
               <Label htmlFor="editNamaPaket" className="text-sm font-medium text-gray-700 flex items-center gap-2">
                 <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                Nama Paket
+                Nama Kategori Paket
               </Label>
               <div className="relative">
                 <Input
@@ -663,7 +663,7 @@ export default function MakananPage() {
                   type="text"
                   value={namaPaket}
                   onChange={(e) => setNamaPaket(e.target.value)}
-                  placeholder="Masukkan nama paket"
+                  placeholder="Masukkan nama kategori paket"
                   required
                   className="h-11 pl-4 pr-4 border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                 />
@@ -716,7 +716,7 @@ export default function MakananPage() {
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">Konfirmasi Penghapusan</h3>
             <p className="text-sm text-gray-500">
-              Apakah Anda yakin ingin menghapus {deleteItem?.type === 'makanan' ? 'menu' : 'jenis paket'} &quot;{deleteItem?.name}&quot;?
+              Apakah Anda yakin ingin menghapus {deleteItem?.type === 'makanan' ? 'paket' : 'kategori paket'} &quot;{deleteItem?.name}&quot;?
             </p>
             {deleteItem?.type === 'makanan' && (
               <p className="text-xs text-red-600 mt-2">

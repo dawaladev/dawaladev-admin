@@ -101,7 +101,7 @@ export default async function DashboardPage() {
     <div className="p-6">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Selamat datang di panel admin Dawala</p>
+        <p className="text-gray-600">Selamat datang di panel admin Desa Wisata Alamendah</p>
       </div>
 
 
@@ -116,7 +116,7 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Jenis Paket</p>
+              <p className="text-sm font-medium text-gray-600">Jumlah Kategori Paket</p>
               <p className="text-2xl font-semibold text-gray-900">{jenisPaketCount}</p>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Makanan</p>
+              <p className="text-sm font-medium text-gray-600">Jumlah Paket Gastronomi</p>
               <p className="text-2xl font-semibold text-gray-900">{makananCount}</p>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Admin</p>
+              <p className="text-sm font-medium text-gray-600">Jumlah Admin</p>
               <p className="text-2xl font-semibold text-gray-900">{adminCount}</p>
             </div>
           </div>
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
       {/* Recent Makanan */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Makanan Terbaru</h3>
+          <h3 className="text-lg font-medium text-gray-900">Paket Gastronomi Terbaru</h3>
         </div>
         <div className="p-6">
           {recentMakanan.length > 0 ? (
@@ -174,7 +174,7 @@ export default async function DashboardPage() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-8">Belum ada makanan yang ditambahkan</p>
+            <p className="text-gray-500 text-center py-8">Belum ada paket gastronomi yang ditambahkan</p>
           )}
         </div>
       </div>

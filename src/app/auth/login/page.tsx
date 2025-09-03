@@ -156,7 +156,7 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error('Unexpected login error:', error)
-      const authError = await handleAuthError(error)
+      const authError = await handleAuthError(error as Error)
       setError(authError.message)
       setIsLoading(false)
     }

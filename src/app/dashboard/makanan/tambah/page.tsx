@@ -112,13 +112,13 @@ export default function TambahMakananPage() {
     const fileArray = Array.from(files)
     const validFiles = fileArray.filter(file => {
       const isValidType = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)
-      const isValidSize = file.size <= 5 * 1024 * 1024 // 5MB limit
+      const isValidSize = file.size <= 15 * 4096 * 4096 // 15MB limit
       if (!isValidType) {
         setUploadError(`File ${file.name} bukan format gambar yang valid`)
         return false
       }
       if (!isValidSize) {
-        setUploadError(`File ${file.name} terlalu besar (maksimal 5MB)`)
+        setUploadError(`File ${file.name} terlalu besar (maksimal 15MB)`)
         return false
       }
       return true
@@ -170,7 +170,7 @@ export default function TambahMakananPage() {
             } catch {}
           }
           if (response.status === 413 || message.toLowerCase().includes('request entity too large')) {
-            message = 'Ukuran file terlalu besar untuk diunggah. Coba perkecil ukuran gambar.'
+            message = 'Ukuran file terlalu besar untuk diunggah. Coba perkecil ukuran gambar. (Maksimal 15MB)'
           }
           throw new Error(message)
         }
@@ -199,7 +199,7 @@ export default function TambahMakananPage() {
         throw new Error(errorData.message || 'Terjadi kesalahan')
       }
 
-      showToast('Menu berhasil disimpan!', 'success')
+      showToast('Paket Gastronomi berhasil disimpan!', 'success')
       setTimeout(() => {
         router.push('/dashboard/makanan')
       }, 1500)
@@ -232,8 +232,8 @@ export default function TambahMakananPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tambah Menu Makanan</h1>
-          <p className="text-gray-600">Tambah menu makanan baru ke database</p>
+          <h1 className="text-3xl font-bold text-gray-900">Tambah Paket Gastronomi</h1>
+          <p className="text-gray-600">Tambah paket gastronomi baru ke database</p>
         </div>
       </div>
 
@@ -246,8 +246,8 @@ export default function TambahMakananPage() {
               <Utensils className="h-8 w-8 text-green-600" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-green-700">Form Menu Makanan</h2>
-              <p className="text-green-600">Lengkapi informasi menu makanan</p>
+              <h2 className="text-2xl font-bold text-green-700">Form Paket Gastronomi</h2>
+              <p className="text-green-600">Lengkapi informasi paket gastronomi</p>
             </div>
           </div>
 
@@ -256,7 +256,7 @@ export default function TambahMakananPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div>
                 <Label htmlFor="namaMakanan" className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Nama Menu *
+                  Nama Paket *
                 </Label>
                 <Input
                   id="namaMakanan"
@@ -272,7 +272,7 @@ export default function TambahMakananPage() {
 
               <div>
                 <Label htmlFor="jenisPaket" className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Jenis Paket *
+                  Kategori Paket *
                 </Label>
                 <Controller
                   name="jenisPaketId"
@@ -282,12 +282,12 @@ export default function TambahMakananPage() {
                       <SelectTrigger 
                         className={`h-12 text-base bg-white ${errors.jenisPaketId ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-green-500 hover:border-green-400'}`}
                       >
-                        <SelectValue placeholder="Pilih jenis paket" />
+                        <SelectValue placeholder="Pilih kategori paket" />
                       </SelectTrigger>
                       <SelectContent className="bg-white border border-gray-200 shadow-lg rounded-lg">
                         {jenisPaketList.length === 0 ? (
                           <div className="px-3 py-2 text-sm text-gray-500">
-                            Tidak ada jenis paket tersedia
+                            Tidak ada kategori paket tersedia
                           </div>
                         ) : (
                           jenisPaketList.map((paket) => (
@@ -311,9 +311,9 @@ export default function TambahMakananPage() {
                 )}
                 {jenisPaketList.length === 0 && (
                   <p className="text-amber-600 text-sm mt-2">
-                    Belum ada jenis paket. 
-                    <Link href="/dashboard/jenis-paket/tambah" className="text-green-600 hover:text-green-700 underline ml-1">
-                      Buat jenis paket baru
+                    Belum ada kategori paket. 
+                    <Link href="/dashboard/makanan/page" className="text-green-600 hover:text-green-700 underline ml-1">
+                      Buat kategori paket baru
                     </Link>
                   </p>
                 )}
@@ -321,7 +321,7 @@ export default function TambahMakananPage() {
 
               <div>
                 <Label htmlFor="harga" className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Harga (Rp) *
+                  Harga Paket (Rp) *
                 </Label>
                 <Input
                   id="harga"
@@ -341,7 +341,7 @@ export default function TambahMakananPage() {
             <div>
               <div className="flex items-center justify-between mb-2">
                 <Label htmlFor="deskripsi" className="text-sm font-semibold text-gray-700">
-                  Deskripsi Menu *
+                  Deskripsi Paket *
                 </Label>
                 <span className={`text-xs font-medium ${
                   descriptionLength > 10000 ? 'text-red-500' : 
@@ -362,7 +362,7 @@ export default function TambahMakananPage() {
                     handleAutoTranslateDescription(e.target.value)
                   }, 2000) // Wait 2 seconds after user stops typing
                 }}
-                placeholder="Deskripsikan menu makanan dengan detail... (minimal 10 karakter, maksimal 10000 karakter)"
+                placeholder="Deskripsikan paket gastronomi dengan detail... (minimal 10 karakter, maksimal 10000 karakter)"
                 className={`min-h-[240px] text-base resize-none w-full ${errors.deskripsi ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-green-500'}`}
               />
               {errors.deskripsi && (
@@ -398,7 +398,7 @@ export default function TambahMakananPage() {
             <div className="space-y-6">
               <div>
                 <Label className="text-sm font-semibold text-gray-700 mb-4 block">
-                  Foto Menu *
+                  Foto Paket *
                 </Label>
                 
                 {/* Upload Area */}
@@ -425,7 +425,7 @@ export default function TambahMakananPage() {
                       >
                         <>
                           <Upload className="h-4 w-4 mr-2" />
-                          Pilih Foto Menu
+                          Pilih Foto Paket
                         </>
                       </Button>
                     </div>
@@ -433,7 +433,7 @@ export default function TambahMakananPage() {
                       Klik untuk memilih foto atau drag & drop file gambar
                     </p>
                     <p className="text-xs text-gray-400">
-                      Format: JPG, PNG, GIF, WebP • Maksimal 5MB per file • Tidak ada batasan jumlah foto
+                      Format: JPG, PNG, GIF, WebP • Maksimal 15MB per file • Tidak ada batasan jumlah foto
                     </p>
                   </div>
                 </div>
@@ -522,7 +522,7 @@ export default function TambahMakananPage() {
                 ) : (
                   <>
                     <Plus className="h-4 w-4 mr-2" />
-                    Simpan Menu
+                    Simpan Paket
                   </>
                 )}
               </Button>

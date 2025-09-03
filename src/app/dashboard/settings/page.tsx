@@ -18,7 +18,7 @@ interface Setting {
 
 export default function SettingsPage() {
   const router = useRouter()
-  const [userRole, setUserRole] = useState<string>('ADMIN')
+  const [, setUserRole] = useState<string>('ADMIN')
   const [settings, setSettings] = useState<Setting[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)

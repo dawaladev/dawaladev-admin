@@ -24,5 +24,5 @@ export function getSiteUrl(): string {
   }
   
   // Last fallback
-  return 'https://dawaladev-admin.vercel.app'
+  return 'https://admin.wisataalamendah.com'
 }
