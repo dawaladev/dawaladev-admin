@@ -438,7 +438,7 @@ export default function MakananPage() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-green-100 bg-green-50 rounded-t-xl">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-green-100 rounded-lg">
-                  <Utensils className="h-5 w-5 text-green-600" />
+                  <Package className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-green-900">Paket Gastronomi</h3>
