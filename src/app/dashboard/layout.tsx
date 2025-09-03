@@ -4,6 +4,9 @@ import Sidebar from '@/components/Sidebar'
 import { withPrisma } from '@/lib/prisma'
 import { requireAuth } from '@/lib/session-recovery'
 
+// Force dynamic rendering for this layout since it uses cookies for authentication
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardLayout({
   children,
 }: {

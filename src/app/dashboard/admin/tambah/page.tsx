@@ -8,6 +8,9 @@ import { Label } from '@/components/ui/label'
 import { ArrowLeft, User, Mail, Shield } from 'lucide-react'
 import Link from 'next/link'
 
+// Force dynamic rendering for this page since it uses cookies for authentication
+export const dynamic = 'force-dynamic'
+
 export default function TambahAdminPage() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')

@@ -8,6 +8,9 @@ import { Label } from '@/components/ui/label'
 import { Settings, Save, Mail, Phone } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
+// Force dynamic rendering for this page since it uses cookies for authentication
+export const dynamic = 'force-dynamic'
+
 interface Setting {
   id: number
   email: string

@@ -16,6 +16,9 @@ import Image from 'next/image'
 import { makananSchema, type MakananFormData } from '@/lib/validations'
 import { Toast } from '@/components/ui/toast'
 
+// Force dynamic rendering for this page since it uses cookies for authentication
+export const dynamic = 'force-dynamic'
+
 // Extend Window interface to include translateTimeout
 declare global {
   interface Window {

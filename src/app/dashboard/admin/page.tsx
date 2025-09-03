@@ -8,6 +8,9 @@ import Modal from '@/components/ui/modal'
 import { Clock, UserCheck, Trash2, Search } from 'lucide-react'
 import { createClient } from '@/lib/supabase'
 
+// Force dynamic rendering for this page since it uses cookies for authentication
+export const dynamic = 'force-dynamic'
+
 interface PendingUser {
   id: string
   email: string

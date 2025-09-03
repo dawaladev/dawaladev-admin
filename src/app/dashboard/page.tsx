@@ -2,6 +2,9 @@ import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { findUserById, findUserByEmail, updateUser } from '@/lib/db-helpers'
 import { withPrisma } from '@/lib/prisma'
 
+// Force dynamic rendering for this page since it uses cookies for authentication
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()
   const { data: { user } } = await supabase.auth.getUser()

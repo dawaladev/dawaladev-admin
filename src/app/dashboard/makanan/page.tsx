@@ -11,6 +11,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MultiLangText } from '@/components/MultiLangText'
 
+// Force dynamic rendering for this page since it uses cookies for authentication
+export const dynamic = 'force-dynamic'
+
 interface Makanan {
   id: number
   namaMakanan: string
