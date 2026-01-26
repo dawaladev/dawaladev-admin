@@ -59,8 +59,8 @@ Buat file `.env` di root project dengan konfigurasi berikut:
 
 ```env
 # Database Configuration (Supabase PostgreSQL)
-DATABASE_URL="postgresql://postgres.yqwiwjadglsicaxlxxkt:D@wal4Pass@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
-DIRECT_URL="postgresql://postgres.yqwiwjadglsicaxlxxkt:D@wal4Pass@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
+DATABASE_URL="databaseurl"
+DIRECT_URL="directurl"
 
 # Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL="https://yqwiwjadglsicaxlxxkt.supabase.co"
@@ -68,9 +68,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your_supabase_anon_key"
 SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
 
 # Super Admin Configuration
-SUPER_ADMIN_EMAIL="dawaladev@gmail.com"
+SUPER_ADMIN_EMAIL="admin@gmail.com"
 SUPER_ADMIN_NAME="Dawala - Admin"
-SUPER_ADMIN_PASSWORD="D@wal4Pass"
+SUPER_ADMIN_PASSWORD="password"
 
 # Next.js Configuration
 NEXTAUTH_SECRET=your_nextauth_secret
@@ -98,8 +98,8 @@ Buka [http://localhost:3000](http://localhost:3000) di browser.
 Setelah menjalankan seeder, Anda bisa login dengan:
 
 **Super Admin:**
-- Email: `dawaladev@gmail.com`
-- Password: `D@wal4Pass`
+- Email: `email@gmail.com`
+- Password: `password`
 
 ## 📁 Struktur Direktori
 
