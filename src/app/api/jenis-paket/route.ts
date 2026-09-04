@@ -38,7 +38,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { namaPaket, namaPaketEn } = await request.json()
+    // 1. Ambil greenPoint dari body request
+    const { namaPaket, namaPaketEn, greenPoint } = await request.json()
 
     if (!namaPaket) {
       return NextResponse.json(
@@ -51,7 +52,9 @@ export async function POST(request: NextRequest) {
       return await client.jenisPaket.create({
         data: {
           namaPaket,
-          namaPaketEn: namaPaketEn || null
+          namaPaketEn: namaPaketEn || null,
+          // 2. Simpan nilai greenPoint ke Prisma (diubah ke angka jika ada isi)
+          greenPoint: greenPoint !== undefined && greenPoint !== null ? Number(greenPoint) : 0
         }
       })
     })
@@ -64,4 +67,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}

@@ -62,7 +62,8 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid ID' }, { status: 400 })
     }
 
-    const { namaPaket, namaPaketEn } = await request.json()
+    // 1. Ambil greenPoint dari body request
+    const { namaPaket, namaPaketEn, greenPoint } = await request.json()
 
     if (!namaPaket) {
       return NextResponse.json(
@@ -76,7 +77,9 @@ export async function PUT(
         where: { id },
         data: { 
           namaPaket,
-          namaPaketEn: namaPaketEn || null
+          namaPaketEn: namaPaketEn || null,
+          // 2. Update nilai greenPoint di database Prisma
+          greenPoint: greenPoint !== undefined && greenPoint !== null ? Number(greenPoint) : 0
         }
       })
     })
@@ -205,4 +208,4 @@ export async function DELETE(
       { status: 500 }
     )
   }
-} 
+}

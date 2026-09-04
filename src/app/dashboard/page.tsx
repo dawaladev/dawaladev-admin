@@ -57,6 +57,7 @@ export default async function DashboardPage() {
   let jenisPaketCount = 0
   let makananCount = 0
   let adminCount = 0
+  let totalGreenPoints = 0
   let recentMakanan: Array<{ id: number; namaMakanan: string; harga: number; createdAt: Date }> = []
 
   try {
@@ -66,6 +67,21 @@ export default async function DashboardPage() {
   } catch (error) {
     console.error('Error counting jenis paket:', error)
     jenisPaketCount = 0
+  }
+
+  // Menghitung Total Green Points dari seluruh Jenis Paket
+  try {
+    const greenPointAggregate = await withPrisma(async (client) => {
+      return await client.jenisPaket.aggregate({
+        _sum: {
+          greenPoint: true
+        }
+      })
+    })
+    totalGreenPoints = greenPointAggregate._sum.greenPoint || 0
+  } catch (error) {
+    console.error('Error aggregating green points:', error)
+    totalGreenPoints = 0
   }
 
   try {
@@ -107,10 +123,8 @@ export default async function DashboardPage() {
         <p className="text-gray-600">Selamat datang di panel admin Desa Wisata Alamendah</p>
       </div>
 
-
-
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
@@ -121,6 +135,21 @@ export default async function DashboardPage() {
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600">Jumlah Kategori Paket</p>
               <p className="text-2xl font-semibold text-gray-900">{jenisPaketCount}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Card Stats Tambahan khusus Green Point */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="flex items-center">
+            <div className="p-2 bg-emerald-100 rounded-lg">
+              <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <div className="ml-4">
+              <p className="text-sm font-medium text-gray-600">Total Green Points</p>
+              <p className="text-2xl font-semibold text-emerald-600">{totalGreenPoints}</p>
             </div>
           </div>
         </div>
@@ -152,8 +181,6 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
-
-
       </div>
 
       {/* Recent Makanan */}
@@ -183,4 +210,4 @@ export default async function DashboardPage() {
       </div>
     </div>
   )
-} 
+}

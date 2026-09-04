@@ -40,6 +40,7 @@ model JenisPaket {
   id         Int       @id @default(autoincrement())
   namaPaket  String    @map("nama_paket")
   namaPaketEn String?  @map("nama_paket_en")
+  greenPoint  Int?      @default(0) @map("green_point")
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   
